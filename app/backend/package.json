@@ -1,0 +1,21 @@
+{
+	"name": "backend",
+	"version": "0.0.1",
+	"description": "dashboard api",
+	"main": "index.js",
+	"scripts": {
+		"start": "node ../../node_modules/nodemon/bin/nodemon.js --watch ../ ./index.js"
+	},
+	"author": "longph",
+	"license": "ISC",
+	"dependencies": {
+		"express": "^4.16.3",
+		"nodemon": "^1.18.3",
+		"body-parser": "^1.18.3",
+		"cookie-parser": "^1.4.3",
+		"ldapjs": "^1.0.2",
+		"cors": "^2.8.4"
+	},
+	"devDependencies": {
+	}
+}

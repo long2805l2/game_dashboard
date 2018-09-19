@@ -1,0 +1,9 @@
+<div>
+	<span>Admins List</span>
+	<li *ngFor="let admin of admins" (click)="onSelect(admin)">
+		<span>{{admin.domain}}</span> {{admin.name}}
+	</li>
+</div>
+<div *ngIf="selectAdmin">
+	<app-admin-detail [admin]="selectAdmin"></app-admin-detail>
+</div>

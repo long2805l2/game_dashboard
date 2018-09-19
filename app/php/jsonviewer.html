@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>JSON Viewer</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" media="screen" href="./css/default.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="./css/json_viewer.css" />
+	<script src="./js/json_view.js"></script>
+	<script>
+		function bodyOnLoad ()
+		{
+			var json_text = `{"level":3,"exp":0,"coin":20519,"gold":300,"reputation":333,"stock":{"M26":6,"T0":20},"stockLevel":[0,0,0,0,0],"floors":[{"id":0,"machine":{"timeStartUnlock":0,"level":0,"numSlot":0,"durability":0,"workingTime":0,"store":[],"timeProduce":0,"produceItems":[]},"slots":[{"pot":"P0","plant":"T0","timeStart":0},{"pot":"P0","plant":"T0","timeStart":1536135260},{"pot":"P0","plant":"T0","timeStart":1536135260},{"pot":"P0","plant":"T0","timeStart":1536135260},{"pot":"P0","plant":"T0","timeStart":1536135260},{"pot":"P0","plant":"T0","timeStart":1536135260}]}],"setting":{"sound":true,"music":true,"notify":true},"order":{"genUid":1,"numNormal":1,"numDaily":0,"normalOrders":[{"id":1,"subType":6,"status":1,"time":0,"price":0,"npc":8,"requireItems":{"T0":1},"rewardItems":{"GOLD":2,"EXP":1}}]},"timeResetDaily":1536127200,"timeNbPrivateShop":0,"timeNbAirShip":0,"numAirShip":0,"tom":{"status":0,"typeHire":0,"timeHire":0,"timeRest":0}}`;
+			var json_formated = json_html (json_text);
+			
+			document.body.innerHTML = json_formated;
+		}
+	</script>
+</head>
+<body onload="bodyOnLoad ()">
+</body>
+</html>

@@ -1,0 +1,7 @@
+<div class="form" [formGroup]="loginForm">
+	<label>Domain:</label>
+	<input type="text" name="domain" formControlName="domain">
+	<label>Password:</label>
+	<input type="password" name="password" formControlName="password">
+	<button class="button button-primary" (click)="login()">Login</button>
+</div>

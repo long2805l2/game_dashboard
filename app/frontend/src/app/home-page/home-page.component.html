@@ -1,0 +1,19 @@
+<ul id="navbar">
+	<li><a routerLink="/admins" routerLinkActive="active"><strong>Admins</strong></a></li>
+	<li><a routerLink="/servers" routerLinkActive="active"><strong>Servers</strong></a></li>
+	<li><a><strong>Customer Service</strong></a>
+		<ul>
+			<li><a routerLink="/customerservice/user" routerLinkActive="active">User Viewer</a></li>
+			<li><a>User Tools</a></li>
+		</ul>
+	</li>
+	<li><a><strong>Log</strong></a>
+		<ul>
+			<li><a>Function</a></li>
+			<li><a>Daily Report</a></li>
+		</ul>
+	</li>
+</ul>
+<div id="container">
+	<router-outlet></router-outlet>
+</div>

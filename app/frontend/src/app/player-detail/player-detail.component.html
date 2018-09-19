@@ -1,0 +1,79 @@
+<div class="tab">
+	<button class="tablinks" (click)="onTab($event, 'Basic')">Basic</button>
+	<button class="tablinks" (click)="onTab($event, 'Floors')">Floors</button>
+	<button class="tablinks" (click)="onTab($event, 'Machines')">Machines</button>
+	<button class="tablinks" (click)="onTab($event, 'Stocks')">Stocks</button>
+	<button class="tablinks active" (click)="onTab($event, 'Raw')">Raw</button>
+</div>
+
+<div id="Basic" class="tabhide">
+	<div class="group" *ngFor="let group of playerInfo">
+		<span class="group_title">{{group.display}}</span>
+		<ul class="group_container">
+			<li class="group_object" *ngFor="let item of group.obj | keyvalue">
+				<span class="property">{{item.key}}</span>
+				<span class="value">{{item.value}}</span>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div id="Floors" class="tabhide">
+	<div class="group" *ngFor="let floor of floors | keyvalue">
+		<span class="group_title">Floor {{floor.key}}</span>
+		<ul class="group_container">
+			<li class="group_object">
+				<span class="property">Slot</span>
+				<span class="value" *ngFor="let slot of floor.value | keyvalue">{{slot.value}}</span>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div id="Machines" class="tabhide">
+	<div class="group" *ngFor="let machine of machines | keyvalue">
+		<span class="group_title">{{machine.value.Name}}</span>
+		<ul class="group_container">
+			<li class="group_object">
+				<span class="property">Level</span>
+				<span class="value">{{machine.value.Level}}</span>
+			</li>
+			<li class="group_object">
+				<span class="property">Product</span>
+				<span class="value" *ngFor="let item of machine.value.Product">{{item}}</span>
+			</li>
+			<li class="group_object">
+				<span class="property">Stock</span>
+				<span class="value" *ngFor="let item of machine.value.Stock">{{item}}</span>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div id="Stocks" class="tabhide">
+	<div class="group">
+		<span class="group_title">Stock</span>
+		<ul class="group_container">
+			<li class="group_object">
+				<span class="property">Levels</span>
+				<span class="value">{{stocks.Level}}</span>
+			</li>
+			<li class="group_object">
+				<span class="property">Item</span>
+				<span class="value" *ngFor="let item of stocks.items | keyvalue">{{item.value}}</span>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div id="Raw" class="tabcontent">
+	<div class="group">
+		<span class="group_title">USER</span>
+		<ul class="group_container">
+			<li class="group_object">
+				<span class="property">JSON</span>
+				<div class="json"><ngx-json-viewer [json]="player" [expanded]="false"></ngx-json-viewer></div>
+			</li>
+		</ul>
+	</div>
+</div>

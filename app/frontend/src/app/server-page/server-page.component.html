@@ -1,0 +1,20 @@
+<ul class="toolbar">
+	<li class="title"><a href="">Servers List</a></li>
+	<li class="button" *ngIf="canSync"><a href="">Sync</a></li>
+	<li class="button" *ngIf="canPause"><a href="">Pause</a></li>
+	<li class="button" *ngIf="canStop"><a href="">Stop</a></li>
+</ul>
+<table class="detail-table">
+	<tr class="table-header">
+		<th>Server</th>
+		<th>Status</th>
+		<th>Version</th>
+		<th>Comments</th>
+	</tr>
+	<tr class="table-row" *ngFor="let server of servers"> 
+		<td><input type="checkbox" [(ngModel)]="server.isCheck" data-md-icheck (change)="onCheck($event)">{{server.name}}</td>
+		<td>{{server.status}}</td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>

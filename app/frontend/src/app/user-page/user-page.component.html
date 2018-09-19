@@ -1,0 +1,10 @@
+<div [formGroup]="search">
+	<select formControlName="searchMethod">
+		<option *ngFor="let option of searchMethods" value="{{option.id}}">{{option.display}}</option>
+	</select>
+	<input type="text" autocomplete="off" formControlName="searchValue">
+	<input type="submit" value="Search" (click)="onSearch()">
+</div>
+<div *ngIf="player">
+	<app-player-detail [player]="player"></app-player-detail>
+</div>

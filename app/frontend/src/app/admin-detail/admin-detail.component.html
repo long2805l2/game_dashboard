@@ -1,0 +1,15 @@
+<h2>Details</h2>
+<div><span>domain: </span>{{admin.domain}}</div>
+<label>name:
+	<input [(ngModel)]="admin.name" placeholder="name">
+</label>
+<div><span>permission: </span></div>
+<ul class="permission">
+	<li>
+		<span>add</span>
+	</li>
+	<li *ngFor="let permission of admin.permission">
+		<span>{{permission}}</span>
+		<span>remove</span>
+	</li>
+</ul>
