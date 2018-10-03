@@ -1,0 +1,17 @@
+<div [formGroup]="form" autocomplete="off">
+	<div *ngFor="let control of controls | keyvalue">
+		<ng-container *ngTemplateOutlet="input; context: {control: control}"></ng-container>
+	</div>
+</div>
+
+<ng-template #input let-control="control">
+	<div [formGroup]="form">
+		<label>{{control.key}}</label>
+		<div [ngSwitch]="control.value">
+			<input *ngSwitchCase="'number'" type="number" formControlName="{{control.key}}" id="{{control.key}}" value="" autocomplete="off">
+			<input *ngSwitchCase="'string'" type="text" formControlName="{{control.key}}" id="{{control.key}}" value="" autocomplete="off">
+			<input *ngSwitchCase="'boolean'" type="checkbox" formControlName="{{control.key}}" id="{{control.key}}" value="">
+			<p *ngSwitchDefault>miss control {{control.value}}</p>
+		</div>
+	</div>
+</ng-template>

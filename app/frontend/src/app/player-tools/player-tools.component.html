@@ -1,0 +1,38 @@
+<label>Commands: </label>
+<select [(ngModel)]="cmd" (change)="onTab($event, $event.target.value)">
+	<option *ngFor="let item of this.cmds" value="{{item.cmd}}">{{item.display}}</option>
+</select>
+<app-dynamic-form id="form" ></app-dynamic-form>
+<button (click)="submit()">Submit</button>
+
+<div style="background: white;">
+	<ngx-json-viewer [json]="response" [expanded]="false"></ngx-json-viewer>
+</div>
+
+<!--
+ban
+unban
+add system mail
+add private mail
+get mail manager
+
+set user game: editor user item, level, ...
+get user data: get database json or local database files
+
+update user coin
+map device id
+<div id="getUserData" class="tabcontent">
+	<label>User Id</label>
+	<input type="text" name="userId" value="1538372897">
+	<label>Use File</label>
+	<input type="checkbox" name="useFile">
+</div>
+
+<div id="setusergame" class="tabhide">
+	<label>User Id:</label>
+	<input type="text" name="userid">
+	<label>data:</label>
+	<input type="text" name="data">
+</div>
+
+-->

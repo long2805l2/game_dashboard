@@ -1,0 +1,95 @@
+/* Style the tab */
+:host .tab {
+	overflow: hidden;
+	padding-left: 10em;
+	background-color: #222222;
+}
+
+/* Style the buttons that are used to open the tab content */
+:host .tab button {
+	float: left;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	padding: 0.9em 1em;
+	transition: 0.3s;
+	color: white;
+	background-color: #555555;
+}
+
+/* Change background color of buttons on hover */
+:host .tab button:hover {
+	background-color: #222222;
+}
+
+/* Create an active/current tablink class */
+:host .tab button.active {
+	background-color: #333333;
+}
+
+/* Style the tab content */
+:host .tabcontent {
+	display: block;
+}
+
+:host .tabhide {
+	display: none;
+}
+
+:host .group
+{
+	background-color: #333333;
+}
+
+:host .group .group_title
+{
+	display: inline-block;
+	padding-top: 0.8em;
+	padding-right: 0.8em;
+	background-color: #222222;
+	color:#cccccc;
+	width: 8em;
+	text-align: right;
+	font-size: 1.25em;
+}
+
+:host .group .group_container
+{
+	list-style: none;
+}
+
+:host .group .group_container .group_object:first-child
+{
+	border-top: 1px #222222 solid;
+}
+
+:host .group .group_container .group_object
+{
+	border-bottom: 1px #222222 solid;
+}
+
+:host .group .group_container .group_object .property
+{
+	display: inline-block;
+	background-color: #222222;
+	color:#aaaaaa;
+	width: 10em;
+	padding-right: 1em;
+	text-align: right;
+}
+
+:host .group .group_container .group_object .value
+{
+	display: inline-block;
+	font-weight: lighter;
+	padding-left: 1em;
+}
+
+:host .group .group_container .group_object .json
+{
+	background-color: #EEEEEE;
+	width: 800px;
+	position: relative;
+	left: 10em;
+    text-overflow: ellipsis;
+}

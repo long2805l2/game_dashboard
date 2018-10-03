@@ -18,6 +18,10 @@ import { AppRoutingModule } from './/app-routing.module';
 import { PlayerDetailComponent } from './player-detail/player-detail.component';
 import { ElasticPageComponent } from './elastic-page/elastic-page.component';
 import { CustomerPageComponent } from './customer-page/customer-page.component';
+import { PlayerToolsComponent } from './player-tools/player-tools.component';
+import { TabPlaceholderComponent } from './tab-placeholder/tab-placeholder.component';
+import { TabsControlComponent } from './tabs-control/tabs-control.component';
+import { DynamicFormComponent } from './dynamic-form/dynamic-form.component';
 
 @NgModule({
 	declarations: [
@@ -32,7 +36,11 @@ import { CustomerPageComponent } from './customer-page/customer-page.component';
 		AdminDetailComponent,
 		PlayerDetailComponent,
 		ElasticPageComponent,
-		CustomerPageComponent
+		CustomerPageComponent,
+		PlayerToolsComponent,
+		TabPlaceholderComponent,
+		TabsControlComponent,
+		DynamicFormComponent
 	],
 	imports: [
 		BrowserModule,
