@@ -10,6 +10,7 @@ const CryptoJS = require('crypto-js');
 
 const app = express();
 app.use(bodyParser.json());
+app.use("/static", express.static ("../static"));
 app.use(cors({origin: 'http://localhost:4200'}));
 
 const admin_authen = require ("./api/admin_authen");
@@ -69,7 +70,7 @@ function sendPlayerRequest (request, response)
 	obj.hash = CryptoJS.SHA256(inputHash).toString(CryptoJS.enc.Hex);
 
 	let sendData = JSON.stringify(obj);
-
+	let isDownload = obj.data ["useFile"];
 	let post_options = {
 		host: '49.213.72.182'
 	,	port: '8010'
@@ -81,14 +82,47 @@ function sendPlayerRequest (request, response)
 		}
 	};
 
-	let callback = (res) => {
-		let data = "";
-		res.setEncoding('utf8');
-		res.on('data', (chunk) => data += chunk);
-		res.on('end', () => response.status(res.statusCode).json(JSON.parse(data)));
-	};
+	let callback = null;
+	if (isDownload)
+		callback = (res) => {
+			let fileName = (new Date()).getTime() + ".zip";
+			let file = fs.createWriteStream("../static/" + fileName);
+			res.on('data', (chunk) => file.write(chunk));
+			res.on('end', () => {
+				file.end();
+				response.status(res.statusCode).json ({
+					result: "success"
+				,	file: "static/" + fileName
+				});
+			});
+		};
+	else
+		callback = (res) => {
+			let data = [];
+			res.on('data', (chunk) => data.push(chunk));
+			res.on('end', () => {
+				let buffer = Buffer.concat(data);
+				response.status(res.statusCode).json(JSON.parse(buffer.toString()));
+			});
+		};
 
 	let post_req = http.request (post_options, callback);
 	post_req.write(sendData);
 	post_req.end();
 }
+
+function parseItems ()
+{
+	let text = fs.readFileSync ("../static/itemId.json", "utf-8");
+	let json = JSON.parse (text);
+
+	let list = "item	name";
+	for (let id in json)
+	{
+		let item = json[id];
+		list += "\n" + id + "	" + json[id].NAME;
+	}
+
+	fs.writeFileSync ("../static/itemName.txt", list, "utf-8");
+}
+// parseItems ();
