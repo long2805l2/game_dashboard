@@ -6,29 +6,30 @@ export class Player
 	constructor (raw:any)
 	{
 		this.raw = raw;
+		raw = raw.data;
 
 		let temp:any = {};
 		temp.info = {
-			UserId: raw.userId
-		,	UserName: "UserName"
-		,	DatabaseID: 9
-		,	RegisterDate: "yyyy-mm-dd hh:mm:ss"
-		,	Level: raw.level
-		,	Exp: raw.exp
-		,	Gold: raw.gold
-		,	Reputation: raw.reputation
-		,	Coin: raw.coin
+			UserId: raw.uBrief.userId
+		,	UserName: raw.uBrief.username
+		,	DatabaseID: raw.uBrief.bucketId
+		,	RegisterDate: raw.uBrief.timeRegister
+		,	Level: raw.uGame.level
+		,	Exp: raw.uGame.exp
+		,	Gold: raw.uGame.gold
+		,	Reputation: raw.uGame.reputation
+		,	Coin: raw.uGame.coin
 		,	CoinBonus: 0
 		};
 
 		temp.active = {
-			Status: "Offline | Online serverId + sessionId"
-		,	LastLoginAt: "yyyy-mm-dd hh:mm:ss (0 Days 0 Hours 0 Minutes 0 Seconds ago)"
+			Status: raw.uOnline ? "Online serverId + sessionId" : "Offline"
+		,	LastLoginAt: raw.uBrief.timeLogin + " (0 Days 0 Hours 0 Minutes 0 Seconds ago)"
 		,	LastIP: "xxx.xxx.xxx.xxx"
 		};
 
 		temp.device = {
-			IMEI: "IMEI"
+			IMEI: raw.uBrief.deviceId
 		,	Name: "device name"
 		,	Platform: "OS-version"
 		};
@@ -38,26 +39,18 @@ export class Player
 		,	FacebookName: "Facebook Name"
 		};
 
-		temp.inbox = {
-			0: {
-				SentDate: "yyyy-mm-dd hh:mm:ss"
-			,	Title: "Title"
-			,	Description: "Description"
-			,	Item: ["item name:number", "item name:number", "item name:number"]
-			,	Status: "Unopened | Open"
-			}
-		};
+		temp.inbox = raw.uMailbox;
 
 		temp.stocks = {
-			level: raw.stockLevel
-		,	items: raw.stock
+			level: raw.uGame.stockLevel
+		,	items: raw.uGame.stock
 		};
 
 		temp.floors = [];
 		temp.machines = [];
-		for (let i in raw.floors)
+		for (let i in raw.uGame.floors)
 		{
-			let floor = raw.floors[i];
+			let floor = raw.uGame.floors[i];
 			
 			temp.floors [i] = [];
 			for (let s in floor.slots)

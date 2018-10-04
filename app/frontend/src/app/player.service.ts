@@ -3,18 +3,15 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Player } from './obj/Player';
-import * as CryptoJS from 'crypto-js';
 
 const HTTP_OPTION: any = {
 	headers: new HttpHeaders({
-		'Content-Type': 'text/plain; charset=UTF-8'
+		'Content-Type': 'application/json'
 	})
 };
 
-// const USER_BACKEND_URL:string = "http://localhost:8101/";
-const USER_BACKEND_URL: string = "http://49.213.72.182:8010/";
-
-const ADMIN_KEY: string = "(@dm1nS#cr3tKey!)";
+const USER_BACKEND_URL:string = "http://localhost:4201/api/player";
+// const USER_BACKEND_URL: string = "http://49.213.72.182:8010/";
 
 const CMDS: any = {
 	getUserData: {
@@ -108,21 +105,24 @@ const CMDS: any = {
 @Injectable({
 	providedIn: 'root'
 })
-export class PlayerService {
+export class PlayerService
+{
 	constructor(private http: HttpClient) { }
 
-	public getCmds(): any[] {
+	public getCmds(): any[]
+	{
 		let cmds: any[] = [];
 		for (let cmd in CMDS)
 			cmds.push({
 				cmd: cmd
-				, display: CMDS[cmd].display
+			,	display: CMDS[cmd].display
 			});
 
 		return cmds;
 	}
 
-	public getCmdRequire(cmd: string) {
+	public getCmdRequire(cmd: string)
+	{
 		let detail = CMDS[cmd];
 		if (detail == null)
 			return {};
@@ -130,27 +130,17 @@ export class PlayerService {
 		return detail.require;
 	}
 
-	public getPlayer(type: string, param: string): Observable<Player> {
-		// this.http
-		// .get(this.url + param)
-		// .pipe(
-		// 	map((value, index) => this.onParsePlayer(value, index))
-		// )
-		// .subscribe(
-		// 	data => this.onNext (data)
-		// ,	error => this.onError (error)
-		// ,	() => this.onComplete()
-		// );
-
-		return this.http
-			.get("http://49.213.72.182/kvtm/view.php?userId=" + param)
-			.pipe(
-				map((value, index) => this.onParsePlayer(value, index))
-				, catchError((error) => this.onError(error))
-			);
+	public getPlayer(type: string, param: string): Observable<Player>
+	{
+		return this.sendRequire ("getUserData", {userId: param, useFile: false})
+		.pipe(
+			map((value, index) => this.onParsePlayer(value, index))
+		,	catchError((error) => this.onError(error))
+		);
 	}
 
-	private onParsePlayer(value: Object, index: number): Player {
+	private onParsePlayer(value: Object, index: number): Player
+	{
 		console.log(index);
 		console.log(value);
 
@@ -163,42 +153,91 @@ export class PlayerService {
 		return player;
 	}
 
-	public sendRequire(cmdId: string, data: any): Observable<any> {
+	public sendRequire(cmdId: string, data: any): Observable<any>
+	{
 		console.log("sendRequire: " + cmdId);
 		console.log("data: " + JSON.stringify(data));
+
 		let cmd = CMDS[cmdId];
 		if (!cmd)
 			return of(false);
 
-		let require: any = {};
-		require.admin = "longph";
-		require.time = Math.round(new Date().getTime() * 0.001);
+		let detail:any = this.getCmdRequire (cmdId);
+		let dataTemp = {};
+		for (let field in detail)
+		{
+			let value:string = data [field];
+			let type:string = detail [field];
+			let newValue = this.convertData (value, type);
+			dataTemp [field] = newValue;
+		}
 
-		// data = { "userId": 1538376651, "reason": "send test mail", "type": 0, "uid": 0, "title": "Test mail", "content": "Test mail content", "timeStart": "2018-10-03T16:42", "timeFinish": "2018-10-03T16:50", "items": "" };
-		require.data = data;
-
-		let inputHash = ADMIN_KEY + require.admin + require.time + JSON.stringify(data);
-		require.hash = CryptoJS.SHA256(inputHash).toString(CryptoJS.enc.Hex);
-
-		let json: string = JSON.stringify(require);
+		console.log("dataTemp: " + JSON.stringify(dataTemp));
+		let require:any = {
+			cmd: cmdId
+		,	data: dataTemp
+		}
 
 		return this.http
-			.post(USER_BACKEND_URL + cmd.url, json, HTTP_OPTION)
+			.post(USER_BACKEND_URL, require, HTTP_OPTION)
 			.pipe(
 				map((value, index) => this.onResponce(cmdId, value, index))
-				, catchError((error) => this.onError(error))
+			,	catchError((error) => this.onError(error))
 			);
 	}
 
-	private onResponce(cmdId: String, value: Object, index: number): any {
+	private onResponce(cmdId: String, value: Object, index: number): any
+	{
 		console.log("onResponce: " + cmdId + ", value: " + value + ", index: " + index);
 		return value;
 	}
 
-	private onError(error: any) {
+	private onError(error: any)
+	{
 		const msg = `${error.status} ${error.statusText} -  ${error.url}`;
 		console.log("onError: " + msg);
 
 		return throwError(new Error(msg));
+	}
+
+	private getDefautValue (type:string):any
+	{
+		switch (type)
+		{
+			case "number":	return -1;
+			case "boolean":	return false;
+			case "item":	return {};
+			default:		return "";
+		}
+	}
+
+	private convertData (value:any, type:string):any
+	{
+		let newValue = this.getDefautValue (type);
+
+		if (value === "" || value == null || value == undefined)
+			return newValue;
+		
+		switch (type)
+		{
+			case "item":
+			{
+				let temp:string[] = value.split("\n");
+				for (let i = 0; i < temp.length; i ++)
+				{
+					let item:string[] = temp [i].split (":");
+					if (item.length != 2)
+						continue;
+
+					newValue[item[0]] = Number (item[1]);
+				}
+				break;
+			}
+			case "number":	newValue = Number (value); break;
+			case "boolean":	newValue = (value === "true" || value === true || value === 1) ? true : false; break;
+			default: newValue = value; break;
+		}
+
+		return newValue;
 	}
 }

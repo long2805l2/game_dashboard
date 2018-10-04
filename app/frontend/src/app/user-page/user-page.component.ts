@@ -27,7 +27,7 @@ export class UserPageComponent implements OnInit
 	{
 		this.search = this.fb.group({
 			searchMethod:	[this.searchMethods[0].id, Validators.required]
-		,	searchValue:	['1536721826', Validators.required]
+		,	searchValue:	['', Validators.required]
 		});
 
 		this.player = null;
