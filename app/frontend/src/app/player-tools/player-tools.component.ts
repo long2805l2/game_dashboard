@@ -1,7 +1,6 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
-import { TabsControlComponent } from '../tabs-control/tabs-control.component';
+import { FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { PlayerService } from '../player.service';
-import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 
 @Component({
 	selector: 'app-player-tools',
@@ -10,12 +9,12 @@ import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 })
 export class PlayerToolsComponent implements OnInit
 {
-	@ViewChild(DynamicFormComponent) form:DynamicFormComponent;
-
 	private cmd:string;
 	private cmdRequire;
 	private cmds:any[];
 	private response:any = {};
+
+	private form: FormGroup;
 
 	constructor(private playerService:PlayerService)
 	{
@@ -24,12 +23,13 @@ export class PlayerToolsComponent implements OnInit
 
 	ngOnInit()
 	{
-		// this.updateControls ("getUserData");
+		this.form = new FormGroup({});
 	}
 	
 	private submit(): void
 	{
-		let data = this.form.getValues();
+		let data = this.form.value;
+		console.log (this.form);
 		this.playerService.sendRequire (this.cmd, data)
 		.subscribe (result => {
 			if (!result)
@@ -58,6 +58,14 @@ export class PlayerToolsComponent implements OnInit
 	{
 		this.cmd = formName;
 		this.cmdRequire = this.playerService.getCmdRequire (this.cmd);
-		this.form.setFields (this.cmdRequire);
+		
+		let group: any = {};
+		for (let id in this.cmdRequire)
+		{
+			let control:any = this.cmdRequire [id];
+			group[id] = new FormControl('', Validators.required);
+		}
+		
+		this.form = new FormGroup(group);
 	}
 }

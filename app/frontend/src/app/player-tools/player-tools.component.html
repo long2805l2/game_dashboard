@@ -1,11 +1,139 @@
-<label>Commands: </label>
-<select [(ngModel)]="cmd" (change)="onTab($event, $event.target.value)">
-	<option *ngFor="let item of this.cmds" value="{{item.cmd}}">{{item.display}}</option>
-</select>
-<app-dynamic-form id="form" ></app-dynamic-form>
-<button (click)="submit()">Submit</button>
+<div id="request">
+	<div class="grid-row" id="cmdList">
+		<label>Commands</label>
+		<select [(ngModel)]="cmd" (change)="onTab($event, $event.target.value)">
+			<option *ngFor="let item of this.cmds" value="{{item.cmd}}">{{item.display}}</option>
+		</select>
+	</div>
+	<div id="cmdForm" [formGroup]="form" [ngSwitch]="cmd" autocomplete="off">
+		<div class="form-container" *ngSwitchCase="'getUserData'">
+			<div class="grid-row">
+				<label>User Id</label>
+				<input type="text" formControlName="userId" value="1538376651">
+			</div>
+			<div class="grid-row">
+				<label>Use File</label>
+				<input type="checkbox" formControlName="useFile">
+			</div>
+		</div>
+		<div class="form-container" *ngSwitchCase="'setUserGame'">
+			<div class="grid-row">
+				<label>User Id</label>
+				<input type="number" formControlName="userId">
+			</div>
+			<div class="grid-row">
+				<label>Level</label>
+				<input type="number" formControlName="level">
+			</div>
+			<div class="grid-row">
+				<label>Exp</label>
+				<input type="number" formControlName="exp">
+			</div>
+			<div class="grid-row">
+				<label>Add Items</label>
+				<textarea formControlName="addItems"></textarea>
+			</div>
+			<div class="grid-row">
+				<label>Remove Items</label>
+				<textarea formControlName="removeItems"></textarea>
+				<div></div>
+			</div>
+			<div class="grid-row">
+				<label>Reason</label>
+				<textarea formControlName="reason"></textarea>
+			</div>
+		</div>
+		<div class="form-container" *ngSwitchCase="'updateUserCoin'">
+			<div class="grid-row">
+				<label>User Id</label>
+				<input type="number" formControlName="userId">
+			</div>
+			<div class="grid-row">
+				<label>Coin</label>
+				<input type="number" formControlName="coin">
+			</div>
+			<div class="grid-row">
+				<label>Reason</label>
+				<textarea formControlName="reason"></textarea>
+			</div>
+		</div>
+		<div class="form-container" *ngSwitchCase="'mapDeviceId'">
+			<div class="grid-row">
+				<label>Old User Id</label>
+				<input type="number" formControlName="userId">
+			</div>
+			<div class="grid-row">
+				<label>New User Id</label>
+				<input type="number" formControlName="toUserId">
+			</div>
+		</div>
+		<div class="form-container" *ngSwitchCase="'banUser'">
+			<div class="grid-row">
+				<label>User Id</label>
+				<input type="number" formControlName="userId">
+			</div>
+			<div class="grid-row">
+				<label>Duration (s)</label>
+				<input type="number" formControlName="duration">
+			</div>
+			<div class="grid-row">
+				<label>Reason</label>
+				<textarea formControlName="reason"></textarea>
+			</div>
+		</div>
+		<div class="form-container" *ngSwitchCase="'unBanUser'">
+			<div class="grid-row">
+				<label>User Id</label>
+				<input type="number" formControlName="userId">
+			</div>
+			<div class="grid-row">
+				<label>Reason</label>
+				<textarea formControlName="reason"></textarea>
+			</div>
+		</div>
+		<div class="form-container" *ngSwitchCase="'addPrivateMail'">
+			<div class="grid-row">
+				<label>User Id</label>
+				<input type="number" formControlName="userId">
+			</div>
+			<div class="grid-row">
+				<label>Type</label>
+				<input type="number" formControlName="type">
+			</div>
+			<div class="grid-row">
+				<label>UID</label>
+				<input type="number" formControlName="uid">
+			</div>
+			<div class="grid-row">
+				<label>Title</label>
+				<input type="text" formControlName="title">
+			</div>
+			<div class="grid-row">
+				<label>Content</label>
+				<textarea formControlName="content"></textarea>
+			</div>
+			<div class="grid-row">
+				<label>Items</label>
+				<textarea formControlName="items"></textarea>
+			</div>
+			<div class="grid-row">
+				<label>timeStart</label>
+				<input type="datetime-local" formControlName="timeStart">
+			</div>
+			<div class="grid-row">
+				<label>timeFinish</label>
+				<input type="datetime-local" formControlName="timeFinish">
+			</div>
+			<div class="grid-row">
+				<label>Reason</label>
+				<textarea formControlName="reason"></textarea>
+			</div>
+		</div>
+		<button (click)="submit()">Submit</button>
+	</div>
+</div>
 
-<div style="background: white;">
+<div id="response">
 	<ngx-json-viewer [json]="response" [expanded]="false"></ngx-json-viewer>
 </div>
 
@@ -21,13 +149,6 @@ get user data: get database json or local database files
 
 update user coin
 map device id
-<div id="getUserData" class="tabcontent">
-	<label>User Id</label>
-	<input type="text" name="userId" value="1538372897">
-	<label>Use File</label>
-	<input type="checkbox" name="useFile">
-</div>
-
 <div id="setusergame" class="tabhide">
 	<label>User Id:</label>
 	<input type="text" name="userid">
