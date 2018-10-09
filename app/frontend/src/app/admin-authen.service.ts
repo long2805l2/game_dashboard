@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as moment from "moment";
+import * as config from "../../../../config.js";
 import { Observable } from 'rxjs';
 import { Admin } from './obj/Admin';
 
@@ -15,7 +16,7 @@ export class AdminAuthenService
 
 	public login(domain:string, password:string):Observable<any>
 	{
-		return this.http.post('http://localhost:4201/api/admin/authen'
+		return this.http.post(config.backend.home + '/login'
 		,	{
 				domain: domain
 			,	password: password
@@ -25,14 +26,23 @@ export class AdminAuthenService
 	
 	public logout():void
 	{
+		localStorage.removeItem("domain");
         localStorage.removeItem("id_token");
-        localStorage.removeItem("expires_at");
+		localStorage.removeItem("expires_at");
+		
+		// this.http.post(config.backend.home + '/logout'
+		// ,	{
+		// 		domain: domain
+		// 	,	token: token
+		// 	}
+		// );
     }
 
-	public setSession(token, expiresIn):void
+	public setSession(domain:string, token:string, expiresIn:any):void
 	{
         const expiresAt = moment().add(expiresIn,'second');
-        localStorage.setItem('id_token', token);
+		localStorage.setItem('domain', domain);
+		localStorage.setItem('id_token', token);
         localStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()));
     }
 

@@ -1,79 +1,107 @@
-const express = require('express');
-var cors = require('cors');
-const jwt = require('jsonwebtoken');
-const fs = require('fs');
-
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const ldap = require('ldapjs');
+const cors = require('cors');
 const CryptoJS = require('crypto-js');
+const bodyParser = require('body-parser');
+const express = require('express');
+const http = require('http');
+
+const config = require ('../../config.js');
+const admin = require ("./api/admin.js");
+const database = require ('./api/database.js');
+
+const db = 
+{
+	admin: database (config.database.admin)
+};
+
+const adminControl = admin (db.admin, config.authen.publickey, config.authen.privatekey, config.authen.method);
 
 const app = express();
 app.use(bodyParser.json());
-app.use("/static", express.static ("../static"));
-app.use(cors({origin: 'http://localhost:4200'}));
-
-const admin_authen = require ("./api/admin_authen");
-const authen = new admin_authen ('../private/public.key', '../private/private.key', 'RS256');
-const http = require('http');
-
-const ADMIN_KEY = "(@dm1nS#cr3tKey!)";
+app.use("/static", express.static ("../static/public"));
+app.use(cors({origin: config.frontend.home}));
 
 var server = http.createServer(app);
-var io = require('socket.io')(server);
+server.listen(config.backend.port, () => console.log ("start at: " + config.backend.home));
 
-server.listen(4201, () => console.log ("http://localhost:4201"));
-
-app.route('/api/admin/authen').post((request, response) =>
+app.route('/login').post((request, response) =>
 {
-	let domain = request.body.domain;
-	let password = request.body.password;
-
-	let json = authen.login (domain, password);
-	if (!json)
+	let body = request.body;
+	if (!body)
 	{
-		response.status(401).send("Check your domain or password!");
+		response.status(200).json({error: "cannot parse body"}).end();
 		return;
 	}
 
-	response.status(200).json(json);
+	let domain = body.domain;
+	let password = body.password;
+	let result = adminControl.login (domain, password);
+	response.status(200).json(result).end();
 });
 
-app.route('/api/admin/list').post(getAdminList);
-function getAdminList (request, response)
+app.route('/logout').post((request, response) =>
 {
-	let domain = request.body.domain;
-	let token = request.body.token;
-	let json = authen.verify (domain, token);
-	if (!json)
+	let body = request.body;
+	if (!body)
 	{
-		response.status(403).send("You must login fisrt!");
+		response.status(200).json({error: "cannot parse body"}).end();
 		return;
 	}
 
-	response.status(200).json(["longph", "thuanvt"]);
+	let domain = body.domain;
+	let token = body.token;
+	let result = adminControl.logout (domain, token);
+	response.status(200).json(result).end();
+});
+
+app.route('/api/admin').post(getAdminList);
+function getAdminList (request, response)
+{
+	let body = request.body;
+	if (!body)
+	{
+		response.status(200).json({error: "cannot parse body"}).end();
+		return;
+	}
+
+	let domain = body.domain;
+	let token = body.token;
+	let data = body.data;
+	let cmd = body.cmd;
+	let result = adminControl.call (domain, token, "admin." + cmd, data);
+	response.status(200).json(result).end();
 }
 
 app.route ('/api/player').post (sendPlayerRequest);
 function sendPlayerRequest (request, response)
 {
 	let body = request.body;
+	let domain = body.domain;
+	let token = body.token;
 	let url = "/" + body.cmd;
 
+	console.log ("body:" + JSON.stringify(body));
+	let check = adminControl.check (domain, token, "player_" + body.cmd);
+	if (check.error)
+	{
+		response.status(200).json(check).end();
+		return;
+	}
+
 	let obj = {
-		admin: "longph"
+		admin: domain
 	,	data: body.data
 	,	time: new Date().getTime()
 	};
 	
-	let inputHash = ADMIN_KEY + obj.admin + obj.time + JSON.stringify(obj.data);
-	obj.hash = CryptoJS.SHA256(inputHash).toString(CryptoJS.enc.Hex);
+	let inputHash = config.gm.key + obj.admin + obj.time + JSON.stringify(obj.data);
+	let method = CryptoJS[config.gm.method];
+	obj.hash = method(inputHash).toString(CryptoJS.enc.Hex);
 
 	let sendData = JSON.stringify(obj);
 	let isDownload = obj.data ["useFile"];
 	let post_options = {
-		host: '49.213.72.182'
-	,	port: '8010'
+		host: config.gm.ip
+	,	port: config.gm.port
 	,	path: url
 	,	method: 'POST'
 	,	headers: {
@@ -110,19 +138,3 @@ function sendPlayerRequest (request, response)
 	post_req.write(sendData);
 	post_req.end();
 }
-
-function parseItems ()
-{
-	let text = fs.readFileSync ("../static/itemId.json", "utf-8");
-	let json = JSON.parse (text);
-
-	let list = "item	name";
-	for (let id in json)
-	{
-		let item = json[id];
-		list += "\n" + id + "	" + json[id].NAME;
-	}
-
-	fs.writeFileSync ("../static/itemName.txt", list, "utf-8");
-}
-// parseItems ();

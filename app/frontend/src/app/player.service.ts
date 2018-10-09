@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Player } from './obj/Player';
+import * as config from '../../../../config.js';
 
 const HTTP_OPTION: any = {
 	headers: new HttpHeaders({
@@ -10,7 +11,7 @@ const HTTP_OPTION: any = {
 	})
 };
 
-const USER_BACKEND_URL:string = "http://localhost:4201/api/player";
+const USER_BACKEND_URL:string = config.backend.home + "/api/player";
 // const USER_BACKEND_URL: string = "http://49.213.72.182:8010/";
 
 const CMDS: any = {
@@ -162,6 +163,10 @@ export class PlayerService
 		if (!cmd)
 			return of(false);
 
+		let domain:string = localStorage.getItem("domain");
+		let token:string = localStorage.getItem("id_token");
+		console.log("domain: " + domain);
+		console.log("token: " + token);
 		let detail:any = this.getCmdRequire (cmdId);
 		let dataTemp = {};
 		for (let field in detail)
@@ -175,6 +180,8 @@ export class PlayerService
 		console.log("dataTemp: " + JSON.stringify(dataTemp));
 		let require:any = {
 			cmd: cmdId
+		,	domain: domain
+		,	token: token
 		,	data: dataTemp
 		}
 

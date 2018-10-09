@@ -5,8 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"server": "cd ./app/backend && npm start",
-		"client": "cd ./app/frontend && ng serve --open",
-		"ng": "cd ./app/frontend && ng"
+		"client_win": "cd ./app/frontend && ng serve --host 0.0.0.0 --port 4200 --open",
+		"client": "cd ./app/frontend && ng serve --host 0.0.0.0 --port 4200",
+		"ng": "cd ./app/frontend && npm run ng"
 	},
 	"author": "longph",
 	"license": "ISC",

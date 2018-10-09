@@ -42,9 +42,12 @@ export class LoginComponent implements OnInit
 				return;
 			}
 			
+			console.log("User is logged in ok");
+			console.log(response);
+
 			this.domain = val.domain;
-			this.token = response.idToken;
-			this.authService.setSession (this.token, response.expiresIn);
+			this.token = response.token;
+			this.authService.setSession (this.domain, this.token, response.expiresIn);
 			
 			//this.router.navigateByUrl(this.router.url);
 			window.location.reload();
