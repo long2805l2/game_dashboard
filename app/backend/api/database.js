@@ -18,15 +18,22 @@ function database (path)
 	
 	var db = {
 		path: absolutePath,
-		salt: "",
 		hash: ""
 	};
 	var stock = {};
-		
+
+	const salt = lib.cryptoJS.SHA256(absolutePath).toString();
+	const base64 = lib.base64 (salt);
+	const encrypt = (value) => lib.cryptoJS.AES.encrypt(value, salt).toString().replace (/\//g, "-");
+	const decrypt = (value) => lib.cryptoJS.AES.decrypt(value.replace (/-/g, "/"), salt).toString(lib.cryptoJS.enc.Utf8);
+
+	const writeFile = (key, value) => lib.fs.writeFileSync (db.path + "/" + base64.encode(key), encrypt(value), "utf8");
+	const writeRaw = (key, value) => stock [key] = value;
+	
 	db.write = (key, value) =>
 	{
-		lib.fs.writeFileSync (db.path + "/" + key, value, "utf8");
-		stock [key] = value;
+		writeFile (key, value);
+		writeRaw (key, value);
 	};
 
 	db.read = (key) =>
@@ -56,23 +63,29 @@ function database (path)
 
 	};
 
-	db.load = () =>
+	var load = () =>
 	{
-		let listFiles = lib.fs.readdirSync (db.path, "utf8");
-		for (let id in listFiles)
+		try
 		{
-			let file = listFiles [id];
-			let path = db.path + "/" + file;
-			let raw = lib.fs.readFileSync (path);
+			let listFiles = lib.fs.readdirSync (db.path, "utf8");
+			for (let id in listFiles)
+			{
+				let file = listFiles [id];
+				let path = db.path + "/" + file;
+				let raw = lib.fs.readFileSync (path);
 
-			let entry = file.split ('.');
-			let key = entry[0];
-			let type = entry[1];
-			stock [entry] = raw.toString();
+				let key = base64.decode (file);
+				let value = decrypt (raw.toString());
+				writeRaw (key, value);
+			}
+		}
+		catch (error)
+		{
+			console.log (error);
 		}
 	};
 
-	db.load ();
+	load ();
 
 	return db;
 }

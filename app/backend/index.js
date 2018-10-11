@@ -23,7 +23,8 @@ app.use(cors({origin: config.frontend.home}));
 var server = http.createServer(app);
 server.listen(config.backend.port, () => console.log ("start at: " + config.backend.home));
 
-app.route('/login').post((request, response) =>
+app.route('/login').post(login)
+function login (request, response)
 {
 	let body = request.body;
 	if (!body)
@@ -36,9 +37,10 @@ app.route('/login').post((request, response) =>
 	let password = body.password;
 	let result = adminControl.login (domain, password);
 	response.status(200).json(result).end();
-});
+};
 
-app.route('/logout').post((request, response) =>
+app.route('/logout').post(logout);
+function logout (request, response)
 {
 	let body = request.body;
 	if (!body)
@@ -51,7 +53,7 @@ app.route('/logout').post((request, response) =>
 	let token = body.token;
 	let result = adminControl.logout (domain, token);
 	response.status(200).json(result).end();
-});
+};
 
 app.route('/api/admin').post(getAdminList);
 function getAdminList (request, response)
@@ -63,11 +65,18 @@ function getAdminList (request, response)
 		return;
 	}
 
+	let cmd = body.cmd;
+	let method = adminControl[cmd];
+	if (!method || typeof(method) !== "function")
+	{
+		response.status(200).json({error: "un support function " + cmd}).end();
+		return;
+	}
+
 	let domain = body.domain;
 	let token = body.token;
-	let data = body.data;
-	let cmd = body.cmd;
-	let result = adminControl.call (domain, token, "admin." + cmd, data);
+	let requireData = body.data;
+	let result = method (domain, token, requireData);
 	response.status(200).json(result).end();
 }
 

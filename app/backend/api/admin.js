@@ -138,53 +138,79 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 		return {error: "you don't have permission: " + cmd};
 	};
 	
-	admin.list = (domain, token) =>
+	admin.list = (domain, token, requireData) =>
 	{
 		return ["longph", "thuanvt"];
 	};
 	
-	admin.add = (domain, token, who) =>
+	admin.add = (domain, token, requireData) =>
 	{
-		
-	};
-
-	admin.remove = (domain, token, who) =>
-	{
-		
-	};
-
-	admin.permission = (domain, token, cmd, giveTo, value) =>
-	{
-		let check = admin.check (domain, token, "admin/premission");
+		let check = admin.check (domain, token, "admin_add");
 		if (check ["error"])
 			return check.error;
 
-		if (!db.exists (giveTo))
-			return {error: giveTo + " need add to admin list first"};
+		let target = requireData.target;
 
-		if (online [giveTo])
+		db.write (target + keyPass, "root");
+		db.write (target + keyPermission, JSON.stringify({
+			"admin_password": true
+		,	"admin_permissions": true
+		}));
+		
+		return {msg: "I'm done!", target: target};
+	};
+
+	admin.remove = (domain, token, requireData) =>
+	{
+		let check = admin.check (domain, token, "admin_remove");
+		if (check ["error"])
+			return check.error;
+
+		let target = requireData.target;
+	};
+
+	admin.permission = (domain, token, requireData) =>
+	{
+		let check = admin.check (domain, token, "admin_premission");
+		if (check ["error"])
+			return check.error;
+
+		if (!db.exists (target))
+			return {error: target + " need add to admin list first"};
+
+		let cmd = requireData.cmd;
+		let target = requireData.target;
+		let value = requireData.value;
+		let p = {};
+
+		if (online [target])
 		{
-			online [giveTo].permission [cmd] = value;
-			db.write (giveTo + keyPermission, online [giveTo].permission);
+			online [target].permission [cmd] = value;
+			db.write (target + keyPermission, online [target].permission);
+			p = online [target];
 		}
 		else
 		{
-			let p = db.read (giveTo + keyPermission);
+			p = db.read (target + keyPermission);
 			if (p === "" || p === undefined || p === null)
 				p = {};
 			else
 				p = JSON.parse (p);
 
 			p [cmd] = value;
-			db.write (giveTo + keyPermission, p);
+			db.write (target + keyPermission, p);
 		}
 		
-		return {msg: "I'm done!"};
+		return {msg: "I'm done!", target: target, permissions: p};
 	};
 	
-	admin.permissions = (domain, token, who) =>
+	admin.permissions = (domain, token, requireData) =>
 	{
+		let check = admin.check (domain, token, "admin_premissions");
+		if (check ["error"])
+			return check.error;
 		
+		let target = requireData.target;
 	};
 
 	init ();
