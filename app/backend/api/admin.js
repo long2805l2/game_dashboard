@@ -1,7 +1,7 @@
 const lib = require('./lib.js');
 const keyPass = "_password";
 const keyPermission = "_permission";
-const expiresDefault = 5 * 60;
+const expiresDefault = 60 * 60;
 
 function admin (db, publicKeyPath, privateKeyPath, method)
 {
@@ -43,22 +43,22 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 	{
 		if (!db.exists ("superadmin"))
 		{
+			db.write ("list", ["superadmin"]);
 			db.write ("superadmin" + keyPass, "root");
-			db.write ("superadmin" + keyPermission, JSON.stringify({
-				"admin_password": true
-			,	"admin_permissions": true
-			,	"admin_list": true
-			,	"admin_add": true
-			,	"admin_remove": true
-			,	"admin_permission": true
-			,	"player_getUserData": true
-			}));
+			db.write ("superadmin" + keyPermission, {
+				admin_password: true
+			,	admin_permissions: true
+			,	admin_list: true
+			,	admin_add: true
+			,	admin_remove: true
+			,	admin_permission: true
+			,	player_getUserData: true
+			});
 		}
 
 		let onlineTemp = db.read ("online");
-		if (onlineTemp !== undefined && onlineTemp !== "")
+		if (onlineTemp)
 		{
-			onlineTemp = JSON.parse (onlineTemp);
 			let domains = Object.keys(onlineTemp);
 			for (let id = 0; id < domains.length; id++)
 			{
@@ -69,7 +69,7 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 				if (check)
 					online[domain] = detail;
 			}
-			db.write ("online", JSON.stringify(online));
+			db.write ("online", online);
 		}
 	};
 
@@ -88,15 +88,13 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 		let p = db.read (domain + keyPermission);
 		if (p === "" || p === undefined || p === null)
 			p = {};
-		else
-			p = JSON.parse (p);
 		
 		online [domain] = {
 			token: token,
-			permission: p
+			permissions: p
 		};
 
-		db.write ("online", JSON.stringify (online));
+		db.write ("online", online);
 
 		return {
 			msg: "wellcome back, " + domain,
@@ -111,7 +109,7 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 		if (domain in online)
 		{
 			delete online [domain];
-			db.write ("online", JSON.stringify (online));
+			db.write ("online", online);
 			return {msg: "goodbye"};
 		}
 
@@ -129,33 +127,53 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 	admin.check = (domain, token, cmd) =>
 	{
 		if (!online[domain] || online[domain].token !== token)
+		{
 			return {error: "relogin or check your information"};
+		}
 
-		let p = online[domain].permission;
+		let p = online[domain].permissions;
 		if (p[cmd] === true)
 			return {msg: "it's ok"};
 
-		return {error: "you don't have permission: " + cmd};
+		return {error: "you don't have permission: " + cmd, online: online};
+	};
+
+	admin.isAdmin = (domain) =>
+	{
+		let list = db.read ("list");
+		list = list;
+		let index = list.indexOf (domain);
+
+		return index > -1;
 	};
 	
 	admin.list = (domain, token, requireData) =>
 	{
-		return ["longph", "thuanvt"];
+		let check = admin.check (domain, token, "admin_list");
+		if (check ["error"])
+			return check;
+
+		let allDomains = db.read ("list");
+		return {msg: "I'm done!", list: allDomains};
 	};
 	
 	admin.add = (domain, token, requireData) =>
 	{
 		let check = admin.check (domain, token, "admin_add");
 		if (check ["error"])
-			return check.error;
+			return check;
 
 		let target = requireData.target;
 
 		db.write (target + keyPass, "root");
-		db.write (target + keyPermission, JSON.stringify({
+		db.write (target + keyPermission, {
 			"admin_password": true
 		,	"admin_permissions": true
-		}));
+		});
+
+		let list = db.read ("list");
+		list.push (target);
+		db.write ("list", list);
 		
 		return {msg: "I'm done!", target: target};
 	};
@@ -164,29 +182,38 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 	{
 		let check = admin.check (domain, token, "admin_remove");
 		if (check ["error"])
-			return check.error;
+			return check;
 
 		let target = requireData.target;
+		db.remove (target + keyPass);
+		db.remove (target + keyPermission);
+		
+		let list = db.read ("list");
+		let index = list.indexOf (target);
+		if (index != -1)
+			list.splice (index, 1);
+		db.write ("list", list);
+
+		return {msg: "I'm done!"};
 	};
 
 	admin.permission = (domain, token, requireData) =>
 	{
-		let check = admin.check (domain, token, "admin_premission");
+		let check = admin.check (domain, token, "admin_permission");
 		if (check ["error"])
-			return check.error;
-
-		if (!db.exists (target))
-			return {error: target + " need add to admin list first"};
-
+			return check;
+		
 		let cmd = requireData.cmd;
 		let target = requireData.target;
 		let value = requireData.value;
 		let p = {};
+		
+		if (!admin.isAdmin (target))
+			return {error: target + " need add to admin list first"};
 
 		if (online [target])
 		{
 			online [target].permission [cmd] = value;
-			db.write (target + keyPermission, online [target].permission);
 			p = online [target];
 		}
 		else
@@ -194,23 +221,25 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 			p = db.read (target + keyPermission);
 			if (p === "" || p === undefined || p === null)
 				p = {};
-			else
-				p = JSON.parse (p);
 
 			p [cmd] = value;
-			db.write (target + keyPermission, p);
 		}
+
+		db.write (target + keyPermission, p);
 		
 		return {msg: "I'm done!", target: target, permissions: p};
 	};
 	
 	admin.permissions = (domain, token, requireData) =>
 	{
-		let check = admin.check (domain, token, "admin_premissions");
+		let check = admin.check (domain, token, "admin_permissions");
 		if (check ["error"])
-			return check.error;
+			return check;
 		
 		let target = requireData.target;
+		let p = db.read (target + keyPermission);
+		
+		return {msg: "I'm done!", target: target, permissions: p};
 	};
 
 	init ();

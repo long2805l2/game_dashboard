@@ -4,6 +4,7 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Player } from './obj/Player';
 import * as config from '../../../../config.js';
+import { BackendService } from './backend.service';
 
 const HTTP_OPTION: any = {
 	headers: new HttpHeaders({
@@ -11,8 +12,7 @@ const HTTP_OPTION: any = {
 	})
 };
 
-const USER_BACKEND_URL:string = config.backend.home + "/api/player";
-// const USER_BACKEND_URL: string = "http://49.213.72.182:8010/";
+const PLAYER_API:string = config.backend.player;
 
 const CMDS: any = {
 	getUserData: {
@@ -106,9 +106,11 @@ const CMDS: any = {
 @Injectable({
 	providedIn: 'root'
 })
-export class PlayerService
+export class PlayerService 
 {
-	constructor(private http: HttpClient) { }
+	constructor(protected backend: BackendService)
+	{
+	}
 
 	public getCmds(): any[]
 	{
@@ -133,28 +135,17 @@ export class PlayerService
 
 	public getPlayer(type: string, param: string): Observable<Player>
 	{
-		return this.sendRequire ("getUserData", {userId: param, useFile: false})
-		.pipe(
-			map((value, index) => this.onParsePlayer(value, index))
-		,	catchError((error) => this.onError(error))
-		);
+		return this.sendRequire ("getUserData", {userId: param, useFile: false}, this.onParsePlayer);
 	}
 
-	private onParsePlayer(value: Object, index: number): Player
+	private onParsePlayer(value: Object): Player
 	{
-		console.log(index);
 		console.log(value);
-
-		if (value['error']) {
-			console.log(value['error']);
-			return null;
-		}
-
 		let player: Player = new Player(value);
 		return player;
 	}
 
-	public sendRequire(cmdId: string, data: any): Observable<any>
+	public sendRequire(cmdId: string, data: any, callback:any): Observable<any>
 	{
 		console.log("sendRequire: " + cmdId);
 		console.log("data: " + JSON.stringify(data));
@@ -163,10 +154,6 @@ export class PlayerService
 		if (!cmd)
 			return of(false);
 
-		let domain:string = localStorage.getItem("domain");
-		let token:string = localStorage.getItem("id_token");
-		console.log("domain: " + domain);
-		console.log("token: " + token);
 		let detail:any = this.getCmdRequire (cmdId);
 		let dataTemp = {};
 		for (let field in detail)
@@ -177,34 +164,7 @@ export class PlayerService
 			dataTemp [field] = newValue;
 		}
 
-		console.log("dataTemp: " + JSON.stringify(dataTemp));
-		let require:any = {
-			cmd: cmdId
-		,	domain: domain
-		,	token: token
-		,	data: dataTemp
-		}
-
-		return this.http
-			.post(USER_BACKEND_URL, require, HTTP_OPTION)
-			.pipe(
-				map((value, index) => this.onResponce(cmdId, value, index))
-			,	catchError((error) => this.onError(error))
-			);
-	}
-
-	private onResponce(cmdId: String, value: Object, index: number): any
-	{
-		console.log("onResponce: " + cmdId + ", value: " + value + ", index: " + index);
-		return value;
-	}
-
-	private onError(error: any)
-	{
-		const msg = `${error.status} ${error.statusText} -  ${error.url}`;
-		console.log("onError: " + msg);
-
-		return throwError(new Error(msg));
+		return this.backend.sendRequest (PLAYER_API, cmd, dataTemp, callback);
 	}
 
 	private getDefautValue (type:string):any

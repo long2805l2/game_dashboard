@@ -32,7 +32,12 @@ function database (path)
 	
 	db.write = (key, value) =>
 	{
-		writeFile (key, value);
+		let temp = value;
+		let type = typeof (value);
+		if (type === "object")
+			temp = JSON.stringify (value);
+		
+		writeFile (key + "." + type, temp);
 		writeRaw (key, value);
 	};
 
@@ -43,7 +48,7 @@ function database (path)
 
 		return undefined;
 	};
-
+	
 	db.remove = (key) =>
 	{
 		if (key in stock)
@@ -74,8 +79,19 @@ function database (path)
 				let path = db.path + "/" + file;
 				let raw = lib.fs.readFileSync (path);
 
-				let key = base64.decode (file);
+				let keyParts = base64.decode (file);
+				keyParts = keyParts.split (".");
+				let key = keyParts [0];
+				let type = keyParts [1];
+
 				let value = decrypt (raw.toString());
+				switch (type)
+				{
+					case "number": value = Number (value); break;
+					case "boolean": value = Boolean (value); break;
+					case "object": value = JSON.parse (value); break;
+				}
+				
 				writeRaw (key, value);
 			}
 		}

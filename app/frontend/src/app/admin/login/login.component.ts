@@ -4,12 +4,12 @@ import { Router } from '@angular/router';
 import { AdminAuthenService } from '../admin-authen.service';
 
 @Component({
-	selector: 'app-login',
+	selector: 'app-admin-login',
 	templateUrl: './login.component.html',
 	styleUrls: ['./login.component.css']
 })
 
-export class LoginComponent implements OnInit
+export class AdminLoginComponent implements OnInit
 {
 	private loginForm: FormGroup;
 	private domain: string;

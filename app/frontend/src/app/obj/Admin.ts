@@ -1,20 +1,19 @@
 export class Admin
 {
 	readonly domain: string;
-	private password: string;
-	public name?: string;
-	public permission?: string[];
+	public permissions?: any;
 
-	constructor (domain: string)
+	constructor (domain: string, permissions?:any)
 	{
 		this.domain = domain;
-		this.password = "root";
-		this.name = domain;
-		this.permission = ["admin", "operator", "customer service"];
-	}
-
-	public login (pw: string): boolean
-	{
-		return this.password == pw;
+		this.permissions = permissions ? permissions : {
+		//	"admin_password": true
+		// ,	"admin_permissions": true
+		// ,	"admin_list": true
+		// ,	"admin_add": true
+		// ,	"admin_remove": true
+		// ,	"admin_permission": true
+		// ,	"player_getUserData": true
+		};
 	}
 }

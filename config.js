@@ -4,6 +4,10 @@ config.backend = {};
 config.backend.ip = "localhost";
 config.backend.port = 4210;
 config.backend.home = 'http://' + config.backend.ip + ":" + config.backend.port;
+config.backend.login = "/login";
+config.backend.logout = "/logout";
+config.backend.admin = "/api/admin";
+config.backend.player = "/api/player";
 
 config.frontend = {};
 config.frontend.ip = "localhost";

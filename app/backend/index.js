@@ -23,7 +23,7 @@ app.use(cors({origin: config.frontend.home}));
 var server = http.createServer(app);
 server.listen(config.backend.port, () => console.log ("start at: " + config.backend.home));
 
-app.route('/login').post(login)
+app.route(config.backend.login).post(login)
 function login (request, response)
 {
 	let body = request.body;
@@ -39,7 +39,7 @@ function login (request, response)
 	response.status(200).json(result).end();
 };
 
-app.route('/logout').post(logout);
+app.route(config.backend.logout).post(logout);
 function logout (request, response)
 {
 	let body = request.body;
@@ -55,8 +55,8 @@ function logout (request, response)
 	response.status(200).json(result).end();
 };
 
-app.route('/api/admin').post(getAdminList);
-function getAdminList (request, response)
+app.route(config.backend.admin).post(requestAdmin);
+function requestAdmin (request, response)
 {
 	let body = request.body;
 	if (!body)
@@ -64,12 +64,12 @@ function getAdminList (request, response)
 		response.status(200).json({error: "cannot parse body"}).end();
 		return;
 	}
-
+	
 	let cmd = body.cmd;
 	let method = adminControl[cmd];
 	if (!method || typeof(method) !== "function")
 	{
-		response.status(200).json({error: "un support function " + cmd}).end();
+		response.status(200).json({error: "unsupport function " + cmd}).end();
 		return;
 	}
 
@@ -80,7 +80,7 @@ function getAdminList (request, response)
 	response.status(200).json(result).end();
 }
 
-app.route ('/api/player').post (sendPlayerRequest);
+app.route (config.backend.player).post (sendPlayerRequest);
 function sendPlayerRequest (request, response)
 {
 	let body = request.body;

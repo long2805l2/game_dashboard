@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as moment from "moment";
-import * as config from "../../../../config.js";
+import * as config from "../../../../../config.js";
 import { Observable } from 'rxjs';
-import { Admin } from './obj/Admin';
 
 @Injectable({
 	providedIn: 'root'
@@ -16,7 +15,7 @@ export class AdminAuthenService
 
 	public login(domain:string, password:string):Observable<any>
 	{
-		return this.http.post(config.backend.home + '/login'
+		return this.http.post(config.backend.home + config.backend.login
 		,	{
 				domain: domain
 			,	password: password
@@ -26,16 +25,18 @@ export class AdminAuthenService
 	
 	public logout():void
 	{
+		let domain:string = localStorage.getItem("domain");
+		let token:string = localStorage.getItem("id_token");
 		localStorage.removeItem("domain");
         localStorage.removeItem("id_token");
 		localStorage.removeItem("expires_at");
 		
-		// this.http.post(config.backend.home + '/logout'
-		// ,	{
-		// 		domain: domain
-		// 	,	token: token
-		// 	}
-		// );
+		this.http.post(config.backend.logout
+		,	{
+				domain: domain
+			,	token: token
+			}
+		);
     }
 
 	public setSession(domain:string, token:string, expiresIn:any):void
@@ -66,7 +67,7 @@ export class AdminAuthenService
 	
 	public verify (domain: string, token: string):any
 	{
-		return this.http.post('http://localhost:4201/api/admin/list'
+		return this.http.post(config.backend.admin
 		,	{
 				domain: domain
 			,	token: token

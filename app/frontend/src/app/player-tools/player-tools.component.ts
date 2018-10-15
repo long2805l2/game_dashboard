@@ -30,8 +30,8 @@ export class PlayerToolsComponent implements OnInit
 	{
 		let data = this.form.value;
 		console.log (this.form);
-		this.playerService.sendRequire (this.cmd, data)
-		.subscribe (result => {
+
+		let callback = result => {
 			if (!result)
 			{
 				this.response = {error: result};
@@ -40,7 +40,10 @@ export class PlayerToolsComponent implements OnInit
 			
 			this.response = result;
 			console.log ("submit " + this.cmd + "\n" + JSON.stringify(data) + "\n" + JSON.stringify (result));
-		});
+		};
+
+		this.playerService.sendRequire (this.cmd, data, callback);
+		
 		// .subscribe ({
 		// 	next: x => console.log('Observer got a next value: ' + x),
 		// 	error: err => console.error('Observer got an error: ' + err),

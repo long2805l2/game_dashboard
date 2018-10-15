@@ -1,10 +1,12 @@
-:host {
+:host
+{
 	display: grid;
 	min-height: 100%;
 	grid-template-columns: max-content auto;
 }
 
-:host strong {
+:host strong
+{
 	font-size: 1.25em;
 	font-weight: normal;
 }
@@ -19,31 +21,21 @@
 	margin-left: 1em;
 }
 
-:host a {
+:host a
+{
 	display: block;
 	padding: 0.25em 0.5em 0.25em 1em;
 	color: #cccccc;
     text-decoration: none;
 }
 
-:host a.active {
+:host a.active
+{
     background-color: #333333;
 	color: white;
 }
 
-:host a:hover:not(.active) {
+:host a:hover:not(.active)
+{
     background-color: #555555;
-}
-
-:host #navbar {
-	grid-column: 1/1;
-	grid-row: 1;
-	background-color: #444444;
-}
-
-:host #container {
-	padding: 1em;
-	
-	grid-column: 2/2;
-	grid-row: 1;
 }

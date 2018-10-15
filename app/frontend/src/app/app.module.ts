@@ -6,41 +6,36 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 
 import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
+import { AdminLoginComponent } from './admin/login/login.component';
+import { AdminPageComponent } from './admin/page/page.component';
+import { AdminProfileComponent } from './admin/profile/profile.component';
+import { AdminPermissionsComponent } from './admin/permissions/permissions.component';
 import { ServerPageComponent } from './server-page/server-page.component';
 import { UserPageComponent } from './user-page/user-page.component';
-import { AdminPageComponent } from './admin-page/admin-page.component';
 import { MonitorPageComponent } from './monitor-page/monitor-page.component';
 import { OperatorPageComponent } from './operator-page/operator-page.component';
 import { HomePageComponent } from './home-page/home-page.component';
-import { AdminDetailComponent } from './admin-detail/admin-detail.component';
-import { AppRoutingModule } from './/app-routing.module';
+import { AppRoutingModule } from './app-routing.module';
 import { PlayerDetailComponent } from './player-detail/player-detail.component';
-import { ElasticPageComponent } from './elastic-page/elastic-page.component';
 import { CustomerPageComponent } from './customer-page/customer-page.component';
 import { PlayerToolsComponent } from './player-tools/player-tools.component';
-import { TabPlaceholderComponent } from './tab-placeholder/tab-placeholder.component';
-import { TabsControlComponent } from './tabs-control/tabs-control.component';
-import { DynamicFormComponent } from './dynamic-form/dynamic-form.component';
 
 @NgModule({
 	declarations: [
 		AppComponent,
-		LoginComponent,
+		AdminLoginComponent,
+		AdminPageComponent,
+		AdminProfileComponent,
+		AdminPermissionsComponent,
+		
 		ServerPageComponent,
 		UserPageComponent,
-		AdminPageComponent,
 		MonitorPageComponent,
 		OperatorPageComponent,
 		HomePageComponent,
-		AdminDetailComponent,
 		PlayerDetailComponent,
-		ElasticPageComponent,
 		CustomerPageComponent,
-		PlayerToolsComponent,
-		TabPlaceholderComponent,
-		TabsControlComponent,
-		DynamicFormComponent
+		PlayerToolsComponent
 	],
 	imports: [
 		BrowserModule,
