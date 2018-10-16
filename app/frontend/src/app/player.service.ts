@@ -147,9 +147,6 @@ export class PlayerService
 
 	public sendRequire(cmdId: string, data: any, callback:any): Observable<any>
 	{
-		console.log("sendRequire: " + cmdId);
-		console.log("data: " + JSON.stringify(data));
-
 		let cmd = CMDS[cmdId];
 		if (!cmd)
 			return of(false);
@@ -164,7 +161,7 @@ export class PlayerService
 			dataTemp [field] = newValue;
 		}
 
-		return this.backend.sendRequest (PLAYER_API, cmd, dataTemp, callback);
+		return this.backend.sendRequest (PLAYER_API, cmdId, dataTemp, callback);
 	}
 
 	private getDefautValue (type:string):any

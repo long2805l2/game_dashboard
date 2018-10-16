@@ -80,15 +80,20 @@ function requestAdmin (request, response)
 	response.status(200).json(result).end();
 }
 
-app.route (config.backend.player).post (sendPlayerRequest);
+app.route ("/api/player").post (sendPlayerRequest);
 function sendPlayerRequest (request, response)
 {
 	let body = request.body;
+	if (!body)
+	{
+		response.status(200).json({error: "cannot parse body"}).end();
+		return;
+	}
+
 	let domain = body.domain;
 	let token = body.token;
 	let url = "/" + body.cmd;
 
-	console.log ("body:" + JSON.stringify(body));
 	let check = adminControl.check (domain, token, "player_" + body.cmd);
 	if (check.error)
 	{

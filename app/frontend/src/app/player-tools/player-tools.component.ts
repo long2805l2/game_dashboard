@@ -31,29 +31,19 @@ export class PlayerToolsComponent implements OnInit
 		let data = this.form.value;
 		console.log (this.form);
 
-		let callback = result => {
+		let callback = result => 
+		{
 			if (!result)
-			{
-				this.response = {error: result};
-				return;
-			}
+				return {error: "response error"};
 			
-			this.response = result;
-			console.log ("submit " + this.cmd + "\n" + JSON.stringify(data) + "\n" + JSON.stringify (result));
+			return result;
 		};
 
-		this.playerService.sendRequire (this.cmd, data, callback);
-		
-		// .subscribe ({
-		// 	next: x => console.log('Observer got a next value: ' + x),
-		// 	error: err => console.error('Observer got an error: ' + err),
-		// 	complete: () => console.log('Observer got a complete notification'),
-		// });
+		this.playerService.sendRequire (this.cmd, data, callback).subscribe(result => this.response = result.value);
 	}
 
 	private onTab (event:MouseEvent, formName: string)
 	{
-		console.log ("ontab: " + formName);
 		this.updateControls (formName);
 	}
 

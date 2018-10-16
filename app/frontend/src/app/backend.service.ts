@@ -13,7 +13,7 @@ export class BackendService
 
 	public sendRequest (api:string, cmd:string, data:any, parser:any):Observable<any>
 	{
-		console.log ("sendRequest", api, cmd);
+		console.log ("BackendService", "sendRequest", api, cmd);
 
 		let sendData = {
 			domain: localStorage.getItem ("domain")
@@ -35,20 +35,17 @@ export class BackendService
 		.pipe(
 			map (result => this.onResponce (cmd, result, parser))
 		,	catchError((error) => this.onError(error))
-		)
-		;
+		);
 	}
 
 	protected onResponce(cmdId: String, result:any, parser):Observable<any>
 	{
+		console.log("BackendService", "onResponce", cmdId, result);
 		if (!result)
 			return throwError(new Error(cmdId + " response is null"));
 		
 		if (result ['error'])
-		{
-			console.log("BackendService", "onResponce", cmdId, result);
 			return throwError(new Error(cmdId + ": " + result['error']));
-		}
 		
 		if (parser)
 			return of (parser (result));
@@ -56,7 +53,7 @@ export class BackendService
 
 	protected onChunk(cmdId: String, value: Object, index: number): any
 	{
-		console.log("BackendService", "onChunk", cmdId, "value", value, "index", index);
+		console.log("BackendService", "onChunk", cmdId, value, index);
 		return value;
 	}
 

@@ -49,23 +49,24 @@ export class UserPageComponent implements OnInit
 		this.playerService
 		.getPlayer(val.searchMethod, val.searchValue)
 		.subscribe(
-			player => this.onNext (player)
+			result => this.onNext (result)
 		,	error => this.onError (error)
 		,	() => this.onComplete()
-		)
+		);
 	}
 
-	private onNext (player:Player):void
+	private onNext (result:any):void
 	{
-		console.log ("onNext");
-		console.log (player);
-		this.player = player;
+		console.log ("onNext", result);
+		if (!result || !result.value)
+			return;
+		
+		this.player = result.value;
 	}
 
 	private onError (error:any):void
 	{
-		console.log ("onError");
-		console.log (error);
+		console.log ("onError", error);
 	}
 
 	private onComplete ():void
