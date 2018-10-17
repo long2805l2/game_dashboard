@@ -1,7 +1,6 @@
 import { NgModule }             from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { HomePageComponent } from './home-page/home-page.component';
 import { ServerPageComponent } from './server-page/server-page.component';
 import { UserPageComponent } from './user-page/user-page.component';
 import { PlayerDetailComponent } from './player-detail/player-detail.component';
@@ -11,8 +10,8 @@ import { AdminPageComponent } from './admin/page/page.component';
 import { AdminProfileComponent } from './admin/profile/profile.component';
 
 const routes: Routes = [
-	{path: "admins", component: AdminPageComponent}
-,	{path: "admins/:domain", component: AdminProfileComponent}
+	{path: "admins/accounts", component: AdminPageComponent}
+,	{path: "admins/profile", component: AdminProfileComponent}
 ,	{path: "servers", component: ServerPageComponent}
 ,	{path: "servers/:id", component: ServerPageComponent}
 ,	{path: "customerservice", component: CustomerPageComponent, children: [

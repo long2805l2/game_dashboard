@@ -1,4 +1,12 @@
-<div>
-	<p>{{admin.domain}}</p>
-	<app-admin-permissions [admin]="admin" [isReadonly]="isReadonly"></app-admin-permissions>
+<div *ngIf="admin">
+	<a (click)="onLogout()">logout</a>
+
+	<div>
+		<div><label>Old Password<input [(ngModel)]="oldPass" type="password" placeholder="* * * *"></label></div>
+		<div><label>New Password<input [(ngModel)]="newPass" type="password" placeholder="* * * *"></label></div>
+		<div><input type="button" value="Update" (click)="onChangePassword()"></div>
+	</div>
+
+	<p>{{domain}}</p>
+	<app-admin-permissions [admin]="admin" [isReadonly]="true"></app-admin-permissions>
 </div>

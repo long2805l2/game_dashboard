@@ -132,7 +132,8 @@ function sendPlayerRequest (request, response)
 			res.on('data', (chunk) => file.write(chunk));
 			res.on('end', () => {
 				file.end();
-				response.status(res.statusCode).json ({
+				// response.status(res.statusCode).download ("static/" + fileName);
+				response.status(res.statusCode).download ({
 					result: "success"
 				,	file: "static/" + fileName
 				});

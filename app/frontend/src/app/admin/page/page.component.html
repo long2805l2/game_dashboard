@@ -1,4 +1,3 @@
-<a (click)="onLogout()">logout</a>
 <div *ngIf="admins">
 	<span>Admins List</span>
 	<li *ngFor="let admin of admins">
@@ -13,5 +12,5 @@
 
 <div *ngIf="selectAdmin">
 	<!-- <app-admin-permissions [admin]="selectAdmin" [isReadonly]="false"></app-admin-permissions> -->
-	<app-admin-profile [admin]="selectAdmin" [isReadonly]="false"></app-admin-profile>
+	<app-admin-permissions [admin]="selectAdmin" [isReadonly]="false"></app-admin-permissions>
 </div>

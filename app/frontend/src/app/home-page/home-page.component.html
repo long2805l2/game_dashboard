@@ -1,5 +1,10 @@
 <ul id="navbar">
-	<li><a routerLink="/admins" routerLinkActive="active"><strong>Admins</strong></a></li>
+	<li><a><strong>Admins</strong></a>
+		<ul>
+			<li><a routerLink="/admins/profile" routerLinkActive="active">Profile</a></li>
+			<li><a routerLink="/admins/accounts" routerLinkActive="active">Accounts</a></li>
+		</ul>
+	</li>
 	<li><a routerLink="/servers" routerLinkActive="active"><strong>Servers</strong></a></li>
 	<li><a><strong>Customer Service</strong></a>
 		<ul>

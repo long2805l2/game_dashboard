@@ -16,7 +16,6 @@ export class AdminPermissionsComponent implements OnInit
 
 	constructor(private adminService:AdminService)
 	{
-		this.isReadonly = false;
 	}
 
 	ngOnInit()

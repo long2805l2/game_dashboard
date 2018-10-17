@@ -16,4 +16,11 @@ export class Admin
 		// ,	"player_getUserData": true
 		};
 	}
+
+	public check (permission:string):boolean
+	{
+		let check = this.permissions ? (permission in this.permissions ? this.permissions[permission] : false) : false;
+
+		return check;
+	}
 }

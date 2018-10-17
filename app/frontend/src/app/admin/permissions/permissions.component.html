@@ -1,9 +1,16 @@
-<div>
+<div *ngIf="isReadonly; else editBlock">
+	<div *ngFor="let permission of admin.permissions | keyvalue">
+		<label>{{permission.key}}</label>
+	</div>
+</div>
+<ng-template #editBlock>
+	<div>
+		<label><input [(ngModel)]="newPermission" type="text" placeholder="add new permission"><input type="button" value="+" (click)="onAddPermission()"></label>
+	</div>
 	<div *ngFor="let permission of admin.permissions | keyvalue">
 		<label><input [(ngModel)]="permission.value" type="checkbox">{{permission.key}}</label>
 	</div>
 	<div>
-		<input [(ngModel)]="newPermission" type="text" placeholder="add new permission"><input type="button" value="+" (click)="onAddPermission()">
+		<input type="button" value="save">
 	</div>
-	<input type="button" value="save">
-</div>
+</ng-template>

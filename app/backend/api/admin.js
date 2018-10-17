@@ -41,7 +41,7 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 
 	var init = () =>
 	{
-		if (!db.exists ("superadmin"))
+		if (!db.exists ("superadmin" + keyPass))
 		{
 			db.write ("list", ["superadmin"]);
 			db.write ("superadmin" + keyPass, "root");
@@ -116,12 +116,20 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 		return {error: "cannot logout"};
 	};
 
-	admin.password = (domain, token, newPass) =>
+	admin.password = (domain, token, requireData) =>
 	{
 		if (!online[domain] || online[domain].token !== token)
 			return {error: "relogin or check your information"};
 		
+		let oldPass = requireData.oldPassword;
+		let curPass = db.read (domain + keyPass);
+		if (oldPass !== curPass)
+			return {error: "old password is wrong"};
+
+		let newPass = requireData.newPassword;
 		db.write (domain + keyPass, newPass);
+		
+		return {msg: "you must relogin"};
 	};
 
 	admin.check = (domain, token, cmd) =>
@@ -228,6 +236,15 @@ function admin (db, publicKeyPath, privateKeyPath, method)
 		db.write (target + keyPermission, p);
 		
 		return {msg: "I'm done!", target: target, permissions: p};
+	};
+
+	admin.contact = (domain, token, requireData) =>
+	{
+		let check = admin.check (domain, token, "admin_contact");
+		if (check ["error"])
+			return check;
+		
+		return {msg: "I'm done!"};
 	};
 	
 	admin.permissions = (domain, token, requireData) =>

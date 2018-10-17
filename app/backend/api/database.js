@@ -24,10 +24,12 @@ function database (path)
 
 	const salt = lib.cryptoJS.SHA256(absolutePath).toString();
 	const base64 = lib.base64 (salt);
-	const encrypt = (value) => lib.cryptoJS.AES.encrypt(value, salt).toString().replace (/\//g, "-");
-	const decrypt = (value) => lib.cryptoJS.AES.decrypt(value.replace (/-/g, "/"), salt).toString(lib.cryptoJS.enc.Utf8);
+	const encode = (value) => value;//base64.encode (value);
+	const decode = (value) => value;//base64.decode (value);
+	const encrypt = (value) => value;//lib.cryptoJS.AES.encrypt(value, salt).toString().replace (/\//g, "-");
+	const decrypt = (value) => value;//lib.cryptoJS.AES.decrypt(value.replace (/-/g, "/"), salt).toString(lib.cryptoJS.enc.Utf8);
 
-	const writeFile = (key, value) => lib.fs.writeFileSync (db.path + "/" + base64.encode(key), encrypt(value), "utf8");
+	const writeFile = (key, value) => lib.fs.writeFileSync (db.path + "/" + encode(key), encrypt(value), "utf8");
 	const writeRaw = (key, value) => stock [key] = value;
 	
 	db.write = (key, value) =>
@@ -79,7 +81,7 @@ function database (path)
 				let path = db.path + "/" + file;
 				let raw = lib.fs.readFileSync (path);
 
-				let keyParts = base64.decode (file);
+				let keyParts = decode (file);
 				keyParts = keyParts.split (".");
 				let key = keyParts [0];
 				let type = keyParts [1];

@@ -49,7 +49,6 @@ export class AdminAuthenService
 
 	public isLoggedIn():boolean
 	{
-		// this.logout();
         return moment().isBefore(this.getExpiration());
     }
 

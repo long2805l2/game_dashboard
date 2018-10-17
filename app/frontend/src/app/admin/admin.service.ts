@@ -84,4 +84,15 @@ export class AdminService
 		
 		return this.backend.sendRequest (config.backend.admin, "permission", {target: target, cmd:cmd, value:value}, callback);
 	}
+
+	public password (old:string, password:string): Observable<any>
+	{
+		let callback = (value) =>
+		{
+			console.log ("AdminService", "password", value);
+			return "msg" in value;
+		};
+		
+		return this.backend.sendRequest (config.backend.admin, "password", {oldPassword: old, newPassword:password}, callback);
+	}
 }
