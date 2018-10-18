@@ -28,7 +28,7 @@ config.authen.method = "RS256";
 
 config.gm = {};
 config.gm.ip = "49.213.72.182";
-config.gm.port = 8010;
+config.gm.port = 8111;
 config.gm.key = "(@dm1nS#cr3tKey!)";
 config.gm.method = "SHA256";
 
