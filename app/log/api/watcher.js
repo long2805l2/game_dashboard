@@ -1,5 +1,6 @@
 const fs = require ('fs');
 const os = require('os');
+const crypto = require('crypto');
 
 const status_stop = "stop";
 const status_init = "init";
@@ -13,11 +14,14 @@ function watcher ()
 	var private = {};
 
 	private.watchDir = "";
+	private.except = /.*_current/;
 	private.cacheDir = "";
 	private.error = "";
+	private.fileEncode = "utf8";
 	private.status = status_stop;
 	private.files = {};
 	private.parser = null;
+	private.elastic = null;
 	private.thread = null;
 
 	private.init = function ()
@@ -84,7 +88,7 @@ function watcher ()
 
 	private.cache = function (file)
 	{
-		fs.writeFileSync(private.cacheDir + "/" + file.cache, JSON.stringify (file));
+		// fs.writeFileSync(private.cacheDir + "/" + file.cache, JSON.stringify (file));
 	};
 
 	private.readLines = function (err, bytesRead, buffer, file)
@@ -98,11 +102,15 @@ function watcher ()
 		let fd = file.fd;
 		file.fd = -1;
 
-		let str = buffer.toString('utf8', 0, bytesRead);
-		let lines = str.trim().split (break_line);
+		let lines = buffer.toString(private.fileEncode, 0, bytesRead);
 
 		if (private.parser)
-			private.parser (file.dir, file.name, lines);
+		{
+			let objs = private.parser.parse (file.dir, file.name, lines);
+
+			for (let i in objs)
+				private.elastic.push (objs [i]);
+		}
 
 		file.last += bytesRead;
 		private.cache (file);
@@ -135,11 +143,12 @@ function watcher ()
 
 	private.addFile = function (fileName)
 	{
+		let path = private.watchDir + "/" + fileName;
 		private.files [fileName] = {
 			dir: private.watchDir
 		,	name: fileName
-		,	path: private.watchDir + "/" + fileName
-		,	cache: new Buffer(private.watchDir + "/" + fileName).toString('base64').replace (/\\/g, "-")
+		,	path: path
+		,	cache: crypto.createHash('md5').update(path).digest("hex")
 		,	last: 0
 		,	fd: -1
 		,	lock: false
@@ -159,19 +168,27 @@ function watcher ()
 
 	private.watchFile = function (event, fileName)
 	{
+		if (fileName.match (private.except))
+			return;
+		
+		let stats = fs.statSync(private.watchDir + "/" + fileName);
+		if (stats.isDirectory())
+			return;
+
 		if (!private.files [fileName])
 			private.addFile (fileName);
-	
+		
 		let file = private.files [fileName];
 		private.updateFile (file);
 	};
 
 	var public = {};
-	public.start = (wacthDirPath, cacheDirPath, parser) =>
+	public.start = (wacthDirPath, cacheDirPath, parser, elastic) =>
 	{
 		private.watchDir = wacthDirPath;
 		private.cacheDir = cacheDirPath;
 		private.parser = parser;
+		private.elastic = elastic;
 
 		if (private.init ())
 		{
