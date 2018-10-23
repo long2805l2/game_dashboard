@@ -72,6 +72,27 @@ function client ()
 		return elastic.indices.delete({index: index});
 	};
 
+	private.addTemplate = (index, properties) =>
+	{
+		return elastic.indices.putTemplate ({
+			order: 0
+		,	create: false
+		,	name: index + "_template"
+		,	body: {
+				index_patterns: index + "*"
+			,	settings: { number_of_shards: 1 }
+			,	mappings: {
+					doc: {
+						_source: {
+							enabled: true
+						}
+					,	properties: properties
+					}
+				}
+			}
+		});
+	};
+
 	private.addDocument = async (document) =>
 	{
 		private.lock = true;
@@ -80,10 +101,12 @@ function client ()
 		{
 			if (err)
 			{
-				console.log (err);
+				// console.log (JSON.stringify (err));
 				public.push (document);
 				return;
 			}
+			
+			// console.log ("add", document.index, document.id);
 		});
 		private.lock = false;
 	};
@@ -112,9 +135,13 @@ function client ()
 		});
 	}
 
-	public.search = (query) =>
+	public.search = (index, query) =>
 	{
-		return elastic.search (query);
+		return elastic.search ({
+			index: index
+		,	type: "doc"
+		,	body: query
+		});
 	};
 
 	public.connect = () =>
@@ -142,26 +169,53 @@ function client ()
 				for (let fid in design)
 				{
 					let field = design [fid];
-					let type = "text";
 					let t = field.charAt (0);
+					let rule = {};
 	
 					switch (t)
 					{
-						case 't':						break;
-						case 'i':	type = "long";		break;
-						case 's':						break;
-						case 'b':	type = "boolean";	break;
-						default:						break;
+						case 't':
+							rule.type = "date";
+							rule.format = "yyyy-MM-dd HH:mm:ss";
+							break;
+
+						case 'a':
+							// rule.type = "array";
+							break;
+
+						case 'm':
+							// rule.type = "array";
+							break;
+
+						case 'i':
+							rule.type = "long";
+							break;
+						
+						case 's':
+							rule.type = "text";
+							rule.fielddata =true;
+							break;
+
+						case 'b':
+							rule.type = "boolean";
+							break;
+
+						default:
+							break;
 					}
 	
-					properties [field] = {
-						type: type
-					};
+					if ("type" in rule)
+						properties [field] = rule;
 				}
 			}
+
+			properties ["src"] = {
+				type: "text"
+			,	fielddata: true
+			}
 			
-			result = await private.addMapping (catalog, "doc", properties);
-			console.log ("addMapping", JSON.stringify(result));
+			result = await private.addTemplate (catalog, properties);
+			console.log ("addTemplate", JSON.stringify(result));
 		}
 
 		private.isReady = true;
@@ -170,8 +224,12 @@ function client ()
 
 	public.push = (obj) =>
 	{
-		// queueStream.write(JSON.stringify (obj) + os.EOL);
 		queue.push (obj);
+	};
+
+	public.forcePush  = (obj) =>
+	{
+		private.addDocument (obj);
 	};
 
 	return public;
