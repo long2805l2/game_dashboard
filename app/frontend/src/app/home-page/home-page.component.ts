@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AdminAuthenService } from '../admin/admin-authen.service';
 
 @Component({
 	selector: 'app-home-page',
@@ -8,11 +9,19 @@ import { Component, OnInit } from '@angular/core';
 
 export class HomePageComponent implements OnInit
 {
-	constructor()
+	private domain:string;
+
+	constructor(private adminAuthen:AdminAuthenService)
 	{
+		this.domain = localStorage.getItem("domain");
 	}
 
 	ngOnInit()
 	{
+	}
+	
+	private onLogout ():void
+	{
+		this.adminAuthen.logout();
 	}
 }

@@ -1,41 +1,4 @@
 :host
 {
-	display: grid;
 	min-height: 100%;
-	grid-template-columns: max-content auto;
-}
-
-:host strong
-{
-	font-size: 1.25em;
-	font-weight: normal;
-}
-
-:host ul
-{
-	list-style: none;
-}
-
-:host li ul
-{
-	margin-left: 1em;
-}
-
-:host a
-{
-	display: block;
-	padding: 0.25em 0.5em 0.25em 1em;
-	color: #cccccc;
-    text-decoration: none;
-}
-
-:host a.active
-{
-    background-color: #333333;
-	color: white;
-}
-
-:host a:hover:not(.active)
-{
-    background-color: #555555;
 }

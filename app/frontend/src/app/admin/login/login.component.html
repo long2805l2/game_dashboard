@@ -1,7 +1,13 @@
 <div class="form" [formGroup]="loginForm">
-	<label>Domain:</label>
-	<input type="text" name="domain" formControlName="domain" autocomplete="off">
-	<label>Password:</label>
-	<input type="password" name="password" formControlName="password">
-	<button class="button button-primary" (click)="login()">Login</button>
+	<div class="form-group">
+		<label>Domain:</label>
+		<input type="text" data-role="input" name="domain" formControlName="domain" autocomplete="off">
+	</div>
+	<div class="form-group">
+		<label>Password:</label>
+		<input type="password" name="password" formControlName="password">
+	</div>
+	<div class="form-group">
+		<button class="button success" (click)="login()">Login</button>
+	</div>
 </div>
