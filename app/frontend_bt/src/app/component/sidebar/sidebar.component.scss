@@ -1,0 +1,120 @@
+:host
+{
+    max-width: 14rem;
+    background-color: #333333;
+
+    .header
+    {
+        padding: 0.5rem;
+		background-color: #ffffff05;
+		height: 3rem;
+        
+        .avatar
+        {
+            float: left;
+            height: 2rem;
+            width: 2rem;
+            display: block;
+            background-color: white;
+            margin-right: 0.5rem;
+        }
+
+        .domain
+        {
+            display: block;
+            font-size: 1.25rem;
+            font-weight: bold;
+            line-height: 1.25rem;
+        }
+
+        .role
+        {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: lighter;
+            line-height: 0.75rem;
+        }
+    }
+
+    .content
+    {
+        .menu
+        {
+            width: 100%;
+
+            *
+            {
+                width: 100%;
+                transition: all 0.3s;
+            }
+
+            .menu-header
+            {
+                font-size: 1.25rem;
+                font-weight: 300;
+                line-height: 2rem;
+                text-indent: 0.5rem;
+                color: #666666;
+                display: block;
+                margin-top: 0.5rem;
+
+                &:hover
+                {
+                    background-color: #ffffff09;
+
+                    &:after
+                    {
+                        content: "\2BC5";
+                        float: right;
+                        padding-right: 0.5rem;
+                    }
+                }
+            }
+
+            .menu-header.collapsed
+            {
+                color: #DDDDDD;
+                &:hover
+                {
+                    background-color: #AAAAAA;
+                    color: black;
+
+                    &:after
+                    {
+                        content: "\2BC6";
+                    }
+                }
+            }
+
+            .menu-item
+            {
+                font-size: 1rem;
+                font-weight: 500;
+                line-height: 2rem;
+                text-indent: 0.5rem;
+                display: block;
+                color: #DDDDDD;
+
+                &:hover
+                {
+                    background-color: #AAAAAA;
+                    color: black;
+                    &:after
+                    {
+                        content: "\2BC8";
+                        float: right;
+                        padding-right: 0.5rem;
+                    }
+                }
+            }
+        }
+    }
+		
+	.footer {
+		position: absolute;
+		width: 100%;
+		bottom: 0;
+		display: flex;
+		padding: 0.5rem;
+	}
+}
