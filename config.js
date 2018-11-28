@@ -10,7 +10,7 @@ config.backend.admin = "/api/admin";
 config.backend.player = "/api/player";
 
 config.frontend = {};
-config.frontend.ip = "0.0.0.0";
+config.frontend.ip = "localhost";
 config.frontend.port = 8080;
 config.frontend.home = 'http://' + config.frontend.ip + ":" + config.frontend.port;
 
@@ -19,17 +19,20 @@ config.database.path = "../static/private/database";
 config.database.admin = config.database.path + "/admin";
 
 config.log = {};
-config.log.path = "../statis/private/log";
+config.log.path = "../static/private/log";
+config.log.debug = "d:/Project/dashboard/app/static/private/log/debug";
+config.log.cache = "d:/Project/dashboard/app/static/private/log/cache";
+config.log.raw = "d:/Project/els/product/logs_raw";
 
 config.elastic = {};
-config.elastic.path = "D:/Project/els/app/elasticsearch/6.4.0/bin/elasticsearch.bat";
+config.elastic.path = "d:/Project/els/app/elasticsearch/6.4.0/bin/elasticsearch.bat";
 config.elastic.config = "d:/Project/els/app/elasticsearch/6.4.0/config/elasticsearch.yml";
 config.elastic.ip = "localhost";
 config.elastic.port = 9200;
 config.elastic.home = config.elastic.ip + ":" + config.elastic.port;
 
 config.kibana = {};
-config.kibana.path = "D:/Project/els/app/kibana/6.4.0/bin/kibana.bat";
+config.kibana.path = "d:/Project/els/app/kibana/6.4.0/bin/kibana.bat";
 config.kibana.config = "d:/Project/els/app/kibana/6.4.0/config/kibana.yml";
 config.kibana.ip = "localhost";
 config.kibana.port = 5601;

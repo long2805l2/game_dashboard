@@ -31,7 +31,7 @@ function parser (index, type, fields, breakFileChar, breakLineChar)
 			if ("timestamp" in obj.body)
 			{
 				let date = obj.body["timestamp"].split (" ")[0];
-				date = date.replace (/(20)|(-)/g, "");
+				date = date.replace(/(20)/, "").replace (/(-)/g, "");
 				obj.index += "_" + date;
 			}
 

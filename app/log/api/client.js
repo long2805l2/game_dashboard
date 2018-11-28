@@ -20,6 +20,7 @@ function client ()
 	private.isReady = false;
 	private.lock = false;
 	private.threads = 4;
+	private.debugLog = null;
 
 	let public = {};
 
@@ -101,16 +102,14 @@ function client ()
 		elastic.index(document
 		,	(err, resp, status) =>
 		{
+			private.lock = false;
 			if (err)
 			{
-				// console.log (JSON.stringify (err));
+				private.debugLog.log ("elastic", "addDocument", "error", JSON.stringify (document));
 				public.push (document);
 				return;
 			}
-			
-			// console.log ("add", document.index, document.id);
 		});
-		private.lock = false;
 	};
 
 	private.removeDocument = (documentId) =>
@@ -153,8 +152,10 @@ function client ()
 		});
 	}
 
-	public.init = async(LOGS) =>
+	public.init = async(LOGS, debugLog) =>
 	{
+		private.debugLog = debugLog;
+
 		let result = await private.clean ();
 		console.log ("clean", JSON.stringify(result));
 		
@@ -227,6 +228,7 @@ function client ()
 	public.push = (obj) =>
 	{
 		queue.push (obj);
+		private.debugLog.log ("elastic", "public.push", JSON.stringify (obj));
 	};
 
 	public.forcePush  = (obj) =>

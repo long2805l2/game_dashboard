@@ -23,6 +23,7 @@ function watcher ()
 	private.parser = null;
 	private.elastic = null;
 	private.thread = null;
+	private.debugLog = null;
 
 	private.init = function ()
 	{
@@ -88,6 +89,7 @@ function watcher ()
 
 	private.cache = function (file)
 	{
+		// cache is the file, who save last line watcher ready parse
 		// fs.writeFileSync(private.cacheDir + "/" + file.cache, JSON.stringify (file));
 	};
 
@@ -109,7 +111,10 @@ function watcher ()
 			let objs = private.parser.parse (file.dir, file.name, lines);
 
 			for (let i in objs)
+			{
 				private.elastic.push (objs [i]);
+				// private.debugLog.log ("watcher", "private.readLines", JSON.stringify (objs [i]));
+			}
 		}
 
 		file.last += bytesRead;
@@ -183,15 +188,17 @@ function watcher ()
 	};
 
 	var public = {};
-	public.start = (wacthDirPath, cacheDirPath, parser, elastic) =>
+	public.start = (wacthDirPath, cacheDirPath, parser, elastic, debugLog) =>
 	{
 		private.watchDir = wacthDirPath;
 		private.cacheDir = cacheDirPath;
 		private.parser = parser;
 		private.elastic = elastic;
 
+		private.debugStream = debugLog;
+
 		if (private.init ())
-		{
+		{	
 			private.thread = fs.watch(private.watchDir, (event, fileName) => private.watchFile(event, fileName));
 			private.resume ();
 		}
