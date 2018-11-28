@@ -2,6 +2,8 @@ const fs = require ("fs");
 const os = require ("os");
 const elasticsearch = require('elasticsearch');
 
+const config = require("../../../config.js");
+
 function client ()
 {
 	let elastic = null;
@@ -147,7 +149,7 @@ function client ()
 	public.connect = () =>
 	{
 		elastic = new elasticsearch.Client({
-			host: 'localhost:9200'
+			host: config.elastic.home
 		});
 	}
 

@@ -1,5 +1,6 @@
 const fs = require ("fs");
 const os = require ("os");
+var moment = require('moment');
 var client = require('./api/client.js')();
 var watcher = require ("./api/watcher");
 var parser = require ("./api/parser");
@@ -9,8 +10,8 @@ const LOGS = {
 	kvtm_MONITOR_SYSTEM: ["timestamp", "sPrivateHost", "sGroup", "sEnvironment", "sService", "icurrentUser", "icurrentConnection", "icpuProcess", "icpuSystem", "iramProcess", "iramFree", "iInBytes", "iOutBytes", "iNumException", "iItemAirship", "iNumItemPrivateShop"]
 ,	kvtm_MONITOR_SERVICE: ["timestamp", "sPrivateHost", "sGroup", "sEnvironment", "sService", "status"]
 },	gm: {
-	kvtm_GM_addPrivateMail: ["timestamp", "sUserID", "sServerID", "sAdmin", "sRemoteAddress", "sReason", "iResult", "sMailType", "sMailId", "sMailTitle", "sMailContent", "sMailItems"]
-,	kvtm_GM_addSystemMail: ["timestamp", "sUserID", "sServerID", "sAdmin", "sRemoteAddress", "sReason", "iResult", "sMailType", "sMailId", "sMailTitle", "sMailContent", "sMailItems", "iTimeStart", "iTimeFinish"]
+	kvtm_GM_addPrivateMail: ["timestamp", "sUserID", "sServerID", "sAdmin", "sRemoteAddress", "sReason", "iResult", "sMailType", "sMailID", "sMailTitle", "sMailContent", "sMailItems"]
+,	kvtm_GM_addSystemMail: ["timestamp", "sUserID", "sServerID", "sAdmin", "sRemoteAddress", "sReason", "iResult", "sMailType", "sMailID", "sMailTitle", "sMailContent", "sMailItems", "iTimeStart", "iTimeFinish"]
 ,	kvtm_GM_banUser: ["timestamp", "sUserID", "sServerID", "sAdmin", "sRemoteAddress", "sReason", "iResult"]
 ,	kvtm_GM_unbanUser: ["timestamp", "sUserID", "sServerID", "sAdmin", "sRemoteAddress", "sReason", "iResult"]
 ,	kvtm_GM_setUserGame: ["timestamp", "sUserID", "sServerID", "sAdmin", "sRemoteAddress", "sReason", "iResult", "iLevel", "iExp", "mItemLostList", "mItemReceivedList", "bResetDaily"]
@@ -21,11 +22,13 @@ const LOGS = {
 },	common: {
 	kvtm_LEVEL_UP: ["timestamp", "sUserID", "sServerID", "iOldLevel", "iNewLevel", "iExp", "sTransactionID", "mItemReceivedList"]
 ,	kvtm_SPENT_COIN: ["timestamp", "sUserID", "sServerID", "sActionName", "sTransactionID", "sItemID", "sItemName", "iQuantity", "iSpentCoin", "iCoinAfter", "iResult"]
-,	kvtm_PAYING: ["timestamp", "sUserID", "sServerID", "sPaymentGateway", "sPayingTypeID", "sTransactionID", "iGrossRevenue_User", "iGrossRevenue", "iCoinReceived", "iCoinRemain", "iResult", "iChangeCash", "iChangePromo", "iPayTime"]
+,	kvtm_PAYING: ["timestamp", "sUserID", "sServerID", "sPaymentGateway", "sPayingTypeID", "sTransactionID", "iGrossRevenue", "iNetRevenue", "iCoinReceived", "iCoinRemain", "iResult", "iChangeCash", "iChangePromo"]
 ,	kvtm_LOGIN: ["timestamp", "sUserID", "sServerID", "sGameClientVersion", "sOSPlatform", "sOSVersion", "sDeviceID", "sDeviceName", "sConnectionType", "iLevel", "iExp", "iCoinBalance", "sSessionID", "iResult", "sRequestSessionPortal", "sRequestUserId", "sRequestSessionFile"]
 ,	kvtm_LOGOUT: ["timestamp", "sUserID", "sServerID", "iLevel", "iExp", "iCoinBalance", "sSessionID", "iTotalOnlineSecond", "iResult"]
 ,	kvtm_CONVERT_OLD_DATA: ["sUserID", "sUserName", "sOldUserId", "sFacebookId", "iCoinCash", "iCoinPromo", "iLevel", "iExp", "iGold", "iReputation"]
 ,	kvtm_REGISTER: ["timestamp", "sUserID", "sServerID", "sGameClientVersion", "sOSPlatform", "sOSVersion", "sDeviceID", "sDeviceName", "sConnectionType", "sDownloadSource", "sThirdPartySource", "iResult"]
+},	billing: {
+	kvtm_BILLING: ["sUserID", "sServerID", "iResult", "iRemain", "iDeltaTime", "sRequest", "sResponse"]
 },	action: {
 	kvtm_ACTION_POT_STORE: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sRequestFloors", "sRequestSlots", "sSlotResult", "sPots"]
 ,	kvtm_ACTION_POT_MOVE: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iRequestFromFloor", "iRequestFromSlot", "iRequestToFloor", "iRequestToSlot", "idPot"]
@@ -70,18 +73,18 @@ const LOGS = {
 ,	kvtm_ACTION_AIRSHIP_NEWS_BOARD: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iRequestClientCoin", "iRequestPriceCoin", "iPrice"]
 ,	kvtm_ACTION_TOM_HIRE: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iRequestType", "iRequestClientCoin", "iRequestPriceCoin", "iPrice", "bIsSaleOff"]
 ,	kvtm_ACTION_TOM_FIND: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sRequestItem", "sRequestSupport", "iMultiple"]
-,	kvtm_ACTION_TOM_BUY: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iRequestSlot"]
+,	kvtm_ACTION_TOM_BUY: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iRequestSlot", "sItemID"]
 ,	kvtm_ACTION_TOM_CANCEL: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter"]
-,	kvtm_ACTION_TOM_REDUCE_TIME: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sRequestSupport", "iReduceTime"]
-,	kvtm_ACTION_LUCKY_SPIN: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iRequestClientCoin", "iRequestPriceCoin", "iPrice", "iWinSlot", "sWinItem"]
+,	kvtm_ACTION_TOM_REDUCE_TIME: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sRequestSupport", "iRequestNum"]
+,	kvtm_ACTION_LUCKY_SPIN: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iRequestClientCoin", "iRequestPriceCoin", "iPrice", "iSpinId", "iSpinX", "iWinSlot", "sWinItem"]
 ,	kvtm_ACTION_LUCKY_SPIN_GET_REWARD: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iGoldAfter", "iRequestClientCoin", "iWinSlot"]
-,	kvtm_ACTION_GET_USER_DATA: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter"]
-,	kvtm_ACTION_MAIL_MARK_READ: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sMailId"]
-,	kvtm_ACTION_MAIL_DELETE: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sMailId"]
-,	kvtm_ACTION_MAIL_GET_REWARD: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sMailId"]
+,	kvtm_ACTION_GET_USER_DATA: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "bLocalPayment"]
+,	kvtm_ACTION_MAIL_MARK_READ: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sMailID"]
+,	kvtm_ACTION_MAIL_DELETE: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sMailID"]
+,	kvtm_ACTION_MAIL_GET_REWARD: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sMailID"]
 ,	kvtm_ACTION_BLACKSMITH_MAKE_POT: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "sRequestPot", "bForgeSuccess"]
 ,	kvtm_ACTION_OPEN_BUILDING_GAME: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "bIsOpenBuidingGame"]
-,	kvtm_ACTION_DICE_SPIN: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iDiceX", "iWinSlot", "sWinItem"]
+,	kvtm_ACTION_DICE_SPIN: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iDiceId", "iDiceX", "iWinSlot", "sWinItem"]
 ,	kvtm_ACTION_DICE_GET_REWARD: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iDiceX", "iWinSlot", "sWinItem"]
 ,	kvtm_ACTION_DECOR_PUT: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter","iRequestDecor", "sRequestFloors", "sRequestSlots", "sSlotResult"]
 ,	kvtm_ACTION_DECOR_STORE: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "sRequestFloors", "sRequestSlots", "sSlotResult", "sDecors"]
@@ -90,9 +93,18 @@ const LOGS = {
 ,	kvtm_ACTION_MINE_START: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iMineStatus", "mMineRequireItems", "mMineReceiveItems", "sMineFinishTime"]
 ,	kvtm_ACTION_MINE_SKIP_TIME: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iMineStatus", "sMineFinishTime", "iCoinBefore", "iCoinAfter"]
 ,	kvtm_ACTION_MINE_RECEIVE_REWARDS: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult"]
-,	kvtm_ACTION_GACHA_GET_REWARD: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iReputationAfter", "iExpAfter", "sChestId", "sWinItem", "iRequestClientCoin", "iRequestPriceCoin", "iPrice"]
+,	kvtm_ACTION_GACHA_OPEN: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iReputationAfter", "iExpAfter", "sChestId", "sWinItem", "iRequestClientCoin", "iRequestPriceCoin", "iPrice"]
+,	kvtm_ACTION_GACHA_GET_REWARD: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "iCoinAfter", "iGoldAfter", "iReputationAfter", "iExpAfter", "sChestId", "sWinItem"]
+,	kvtm_ACTION_EVENT_MERGE_PUZZLE: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "sEventID", "sPuzzledID", "sMailID"]
+,	kvtm_ACTION_EVENT_01_RECEIVE_REWARDS: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "sEventID", "mCheckpoint", "mEventPoint", "sMailID"]
+,	kvtm_ACTION_PAYMENT_CARD_SUBMIT: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "sItemID", "sChannel", "sSerial", "sCode"]
+,	kvtm_ACTION_PAYMENT_SMS_REG: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "sItemID", "sChannel", "iPrice"]
+,	kvtm_ACTION_PAYMENT_ATM_REG: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "sItemID", "sBankCode", "iPrice"]
+,	kvtm_ACTION_PAYMENT_GOOGLE_CHECK: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "sItemID"]
+,	kvtm_ACTION_PAYMENT_GOOGLE_SUBMIT: ["timestamp", "sUserID", "sServerID", "iLevel", "sTransactionID", "mItemLostList", "mItemReceivedList", "iResult", "sPackageName", "sData", "sSign", "bFinish"]
 },	report: {
-	ktvm_daily: ["timestamp", "aA1", "nA1", "aN1", "nN1", "aC1", "nC1", "aRR1", "nRR1", "aCCU", "nPCU", "nACP", ]
+	ktvm_CACHE_DAILY: ["timestamp", "aActiveUser", "aNewUser", "aPayingUser", "aNewPayingUser"]
+,	ktvm_DAILY: ["timestamp", "iA1", "iN1", "iC1", "iRR1", "iPCU", "iACP"]
 }
 };
 
@@ -174,7 +186,25 @@ async function search ()
 	};
 }
 
+// await client.connect ();
+// client.forcePush (search());
+// let newDate = require ("./api/date.js");
+// let today = newDate ();
+// let startDay = today.startDay ();
+// let endDay = today.endDay ();
+// let tomorrow = today.tomorrow ();
+// let yesterday = today.yesterday ();
+// let sunday = today.sunday ();
+// let saturday = today.saturday ();
+// let startMonth = today.startMonth ();
+// let endMonth = today.endMonth ();
 
-
-await client.connect ();
-client.forcePush (search());
+// console.log ("today", today.toString());
+// console.log ("startDay", startDay.toString());
+// console.log ("endDay", endDay.toString());
+// console.log ("tomorrow", tomorrow.toString());
+// console.log ("yesterday", yesterday.toString());
+// console.log ("sunday", sunday.toString());
+// console.log ("saturday", saturday.toString());
+// console.log ("startMonth", startMonth.toString());
+// console.log ("endMonth", endMonth.toString());

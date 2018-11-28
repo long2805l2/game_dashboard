@@ -1,3 +1,36 @@
+const date = require ("./date.js");
+
+/*
+∈				element of				x is element of set A => x ∈ set A
+∉				not element of			x don't element of set A => x ∉ set A
+∩				Intersection			x ∈ set A && x ∈ set B => x ∈ A ∩ B
+∪				Union					x ∈ set A || x ∈ set B => x ∈ A ∪ B
+\				Relative Complement		x ∈ set A && x ∉ set B => x ∈ A \ B
+DAU				
+MAU				
+A1				count of unique userID has Active in Day
+A7				count of unique userID has Active in Week
+A30				count of unique userID has Active in Month
+N1				count of New userID in Day
+N7				count of New userID in Week
+N30				count of New userID in Month
+C1				Churn rate = count of (A1 yesterday \ A1 today) / count of (A1 yesterday)
+C7				?
+C30				?
+RR1				Retension Rate today = count of (N1 yesterday ∩ A1 today) / count of (N1 yesterday)
+RR7				?
+RR30			?	
+NET Revenue		Gross Revenue remain after all deductions are made (tax, play store ...)
+Gross Revenue	total real money is purchase to this game by players
+ARPU			Average Revenue Per User = Revenue / A1
+ARPPU			Average Revenue Per Paying User = Revenue / Paying Users
+CVR				Conversion Rate	= Non Paying Users / New Paying Users
+ChargeUser		?
+NewChargeUser	?
+Coin Spent		total coin is used by players for furture in this game
+Coin In-Stock	total recieve coin - Coin Spent
+*/
+
 var report = {};
 var private = {};
 var client = null;
@@ -76,33 +109,68 @@ private.selectFilter = async function (select_field_target, from_index_pattern, 
 
 private.daily = function ()
 {
-	let date = Date.now();
-	let today = date.toISOString().slice(0, 10);
-	let today_start = today + " 00:00:00";
-	let today_end = today + " 23:59:59";
+	let today = date ();
+	let today_start = today.startDay ();
+	let today_end = today.endDay ();
 
-	date = date.setDate (date.getDate - 1);
-	let yesterday = date.toISOString().slice(0, 10);
-	let yesterday_start = yesterday + " 00:00:00";
-	let yesterday_end = yesterday + " 23:59:59";
+	let yesterday_start = today.yesterday ();
+	let yesterday_end = yesterday_start.endDay ();
 
-	let today_A1 = private.select ("sUserID", "common_*", "kvtm_LOGIN", today_start, today_end);
-	let today_N1 = private.select ("sUserID", "common_*", "kvtm_REGISTER", today_start, today_end);
+	let today_A1 = private.select ("sUserID", "common_*", "kvtm_LOGIN", today_start.toString(), today_end.toString());
+	let today_N1 = private.select ("sUserID", "common_*", "kvtm_REGISTER", today_start.toString(), today_end.toString());
 
-	let yesterday_A1 = private.select ("sUserID", "common_*", "kvtm_LOGIN", yesterday_start, yesterday_end);
-	let yesterday_N1 = private.select ("sUserID", "common_*", "kvtm_REGISTER", yesterday_start, yesterday_end);
+	let yesterday_A1 = private.select ("sUserID", "common_*", "kvtm_LOGIN", yesterday_start.toString(), yesterday_end.toString());
+	let yesterday_N1 = private.select ("sUserID", "common_*", "kvtm_REGISTER", yesterday_start.toString(), yesterday_end.toString());
 
 	let today_C1 = yesterday_N1.filter (userID => !today_A1.includes(userID));
 	let today_RR1 = yesterday_A1.filter (userID => today_A1.includes(userID));
+
+	let week_start = today.sunday();
+	let week_end = today.saturday().endDay();
+
+	let week_A7 = private.select ("sUserID", "common_*", "kvtm_LOGIN", week_start.toString(), week_end.toString());
+	let week_N7 = private.select ("sUserID", "common_*", "kvtm_REGISTER", week_start.toString(), week_end.toString());
+
+	let month_start = today.startMonth();
+	let month_end = today.endMonth().endDay();
+
+	let month_A30 = private.select ("sUserID", "common_*", "kvtm_LOGIN", month_start.toString(), month_end.toString());
+	let month_N30 = private.select ("sUserID", "common_*", "kvtm_REGISTER", month_start.toString(), month_end.toString());
+
+	let ago7_start = today.shift (-7);
+	let ago7_end = ago7_start.endDay ();
+
+	let ago7_A1 = private.select ("sUserID", "common_*", "kvtm_LOGIN", ago7_start.toString(), ago7_end.toString());
+	let ago7_N1 = private.select ("sUserID", "common_*", "kvtm_REGISTER", ago7_start.toString(), ago7_end.toString());
+
+	let today_C7 = ago7_A1.filter (userID => !today_A1.includes(userID));
+	let today_RR7 = ago7_N1.filter (userID => today_A1.includes(userID));
+
+	let ago30_start = today.shift (-30);
+	let ago30_end = ago30_start.endDay ();
+
+	let ago30_A1 = private.select ("sUserID", "common_*", "kvtm_LOGIN", ago30_start.toString(), ago30_end.toString());
+	let ago30_N1 = private.select ("sUserID", "common_*", "kvtm_REGISTER", ago30_start.toString(), ago30_end.toString());
+
+	let today_C7 = ago30_A1.filter (userID => !today_A1.includes(userID));
+	let today_RR7 = ago30_N1.filter (userID => today_A1.includes(userID));
 
 	return {
 		A1: today_A1
 	,	N1: today_N1
 	,	C1: today_C1
+	,	C7: today_C7
+	,	C30: today_C30
 	,	RR1: today_RR1
+	,	RR7: today_RR7
+	,	RR30: today_RR30
 	,	CCU: []
 	,	ACU: 0
 	,	PCU: 0
+	,	A7: week_A7
+	,	N7: week_N7
+	,	A30: month_A30
+	,	N30: month_N30
 	}
 };
 
