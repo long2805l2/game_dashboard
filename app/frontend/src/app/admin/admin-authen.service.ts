@@ -37,8 +37,6 @@ export class AdminAuthenService
 			,	token: token
 			}
 		);
-		
-		window.location.reload();
     }
 
 	public setSession(domain:string, token:string, expiresIn:any):void

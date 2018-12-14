@@ -46,8 +46,12 @@ function client ()
 		if (queue.length === 0)
 			return;
 			
-		let obj = queue.pop();
-		private.addDocument (obj);
+		let obj = queue.shift();
+		if (Array.isArray(obj))
+			private.addDocuments (obj);
+		else
+			private.addDocument (obj);
+		
 	};
 
 	private.check = () =>
@@ -75,7 +79,7 @@ function client ()
 		return elastic.indices.delete({index: index});
 	};
 
-	private.addTemplate = (index, properties) =>
+	private.addTemplate = (index, param) =>
 	{
 		return elastic.indices.putTemplate ({
 			order: 0
@@ -89,7 +93,9 @@ function client ()
 						_source: {
 							enabled: true
 						}
-					,	properties: properties
+					,	dynamic_templates: param.dynamic_templates
+					,	dynamic: true
+					,	properties: param.properties
 					}
 				}
 			}
@@ -111,6 +117,31 @@ function client ()
 			}
 		});
 	};
+
+	private.addDocuments = async (documents) =>
+	{
+		let body = [];
+		private.lock = true;
+		for (let i = 0; i < documents.length; i++)
+		{
+			let base = documents [i];
+			let cmd = { index:  { _index: base.index, _type: base.type, _id: base.id } };
+			let doc = base.body;
+			
+			body.push (cmd);
+			body.push (doc);
+		}
+
+		private.bulk (body, (error, resp) =>
+		{
+			private.lock = false;
+			if (error)
+			{
+				private.debugLog.log ("elastic", "addDocuments", "error", JSON.stringify (error));
+				public.push (documents);
+			}
+		});
+	}
 
 	private.removeDocument = (documentId) =>
 	{
@@ -134,12 +165,25 @@ function client ()
 				properties: properties
 			}
 		});
-	}
+	};
 
-	public.search = (index, query) =>
+	private.bulk = async (body, callback) =>
+	{
+		elastic.bulk(
+			{body: body}
+		,	(err, resp) =>
+			{
+				if (callback)
+					callback (err, resp);
+			}
+		);
+	};
+
+	public.search = function (index, query, filter_path = "")
 	{
 		return elastic.search ({
 			index: index
+		,	filter_path: filter_path
 		,	type: "doc"
 		,	body: query
 		});
@@ -158,7 +202,7 @@ function client ()
 
 		let result = await private.clean ();
 		console.log ("clean", JSON.stringify(result));
-		
+
 		for (let catalog in LOGS)
 		{
 			result = await private.addIndex (catalog);
@@ -166,6 +210,7 @@ function client ()
 			
 			let log = LOGS [catalog];
 			let properties = {};
+			let dynamic_templates = {};
 			for (let id in log)
 			{
 				let design = log[id];
@@ -174,6 +219,7 @@ function client ()
 					let field = design [fid];
 					let t = field.charAt (0);
 					let rule = {};
+					let childs = null;
 	
 					switch (t)
 					{
@@ -183,11 +229,24 @@ function client ()
 							break;
 
 						case 'a':
-							// rule.type = "array";
-							break;
-
 						case 'm':
-							// rule.type = "array";
+							// childs = {};
+							// childs [field + "_number"] = {
+							// 	path_match: field + "_*"
+							// ,	match_mapping_type: "long"
+							// ,	mapping: { type: "long" }
+							// };
+							// childs [field + "_boolean"] = {
+							// 	path_match: field + "_*"
+							// ,	match_mapping_type: "boolean"
+							// ,	mapping: { type: "boolean"}
+							// };
+							// childs [field + "_text"] = {
+							// 	path_match: field + "_*"
+							// ,	match_mapping_type: "string"
+							// ,	mapping: { type: "text"}
+							// };
+
 							break;
 
 						case 'i':
@@ -209,15 +268,32 @@ function client ()
 	
 					if ("type" in rule)
 						properties [field] = rule;
+
+					if (childs)
+						for (let i in childs)
+							dynamic_templates [i] = childs [i];
 				}
 			}
 
 			properties ["src"] = {
 				type: "text"
 			,	fielddata: true
+			};
+
+			let temp = [];
+			for (let i in dynamic_templates)
+			{
+				let d = {};
+				d [i] = dynamic_templates [i];
+				temp.push (d);
 			}
+
+			let param = {
+				properties: properties
+			,	dynamic_templates: temp
+			};
 			
-			result = await private.addTemplate (catalog, properties);
+			result = await private.addTemplate (catalog, param);
 			console.log ("addTemplate", JSON.stringify(result));
 		}
 
@@ -228,10 +304,11 @@ function client ()
 	public.push = (obj) =>
 	{
 		queue.push (obj);
-		private.debugLog.log ("elastic", "public.push", JSON.stringify (obj));
+		
+		// private.debugLog.log ("elastic", "public.push", JSON.stringify (obj));
 	};
 
-	public.forcePush  = (obj) =>
+	public.forcePush = (obj) =>
 	{
 		private.addDocument (obj);
 	};

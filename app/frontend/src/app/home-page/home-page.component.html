@@ -1,58 +1,24 @@
-<div data-role="navview">
-	<nav class="navview-pane">
-		<button class="pull-button fg-white">
-			<span class="mif-menu"></span>
-		</button>
-
-		<ul class="navview-menu" style="height: calc(100% - 140px);">
-			<li class="bg-red-hover fg-white-hover">
-				<a routerLink="/admins/accounts" routerLinkActive="active">
-					<span class="icon"><span class="mif-users"></span></span>
-					<span class="caption">Admins Manager</span>
-				</a>
-			</li>
-			<li class="bg-red-hover fg-white-hover">
-				<a href="#" class="dropdown-toggle" routerLinkActive="active">
-					<span class="icon"><span class="mif-server"></span></span>
-					<span class="caption">Server Controls</span>
-				</a>
-				<ul class="navview-menu" data-role="dropdown">
-					<li><a href="#"><span class="icon"><span class="mif-heartbeat"></span></span><span class="caption">Status</span></a></li>
-				</ul>
-			</li>
-			<li class="bg-cyan-hover fg-white-hover">
-				<a href="#" class="dropdown-toggle" routerLinkActive="active">
-					<span class="icon"><span class="mif-phone-in-talk"></span></span>
-					<span class="caption">Customer Service</span>
-				</a>
-				<ul class="navview-menu" data-role="dropdown">
-					<li><a routerLink="/customerservice/user" routerLinkActive="active"><span class="icon"><span class="mif-file-empty"></span></span><span class="caption">User Viewer</span></a></li>
-					<li><a routerLink="/customerservice/tools" routerLinkActive="active"><span class="icon"><span class="mif-magic-wand"></span></span><span class="caption">User Tools</span></a></li>
-				</ul>
-			</li>
-			<li class="bg-cyan-hover fg-white-hover">
-				<a href="#" class="dropdown-toggle" routerLinkActive="active">
-					<span class="icon"><span class="mif-stack"></span></span>
-					<span class="caption">Log</span>
-				</a>
-				<ul class="navview-menu" data-role="dropdown">
-					<li><a href="#"><span class="icon" routerLinkActive="active"><span class="mif-news"></span></span><span class="caption">Report</span></a></li>
-					<li><a href="#"><span class="icon" routerLinkActive="active"><span class="mif-chart-pie"></span></span><span class="caption">Feature</span></a></li>
-					<li><a href="#"><span class="icon" routerLinkActive="active"><span class="mif-search"></span></span><span class="caption">Search</span></a></li>
-				</ul>
-			</li>
-			<li class="bg-red-hover fg-white-hover">
-				<a href="#" (click)="onLogout()">
-					<span class="icon"><span class="mif-switch"></span></span>
-					<span class="caption">Logout</span>
-				</a>
-			</li>
+<ul id="navbar">
+	<li><a><strong>Admins</strong></a>
+		<ul>
+			<li><a routerLink="/admins/profile" routerLinkActive="active">Profile</a></li>
+			<li><a routerLink="/admins/accounts" routerLinkActive="active">Accounts</a></li>
 		</ul>
-	</nav>
-	
-	<div class="navview-content pl-4-md pr-4-md">
-		<h1>Skygarden Dashboard</h1>
-		
-		<router-outlet></router-outlet>
-	</div>
+	</li>
+	<li><a routerLink="/servers" routerLinkActive="active"><strong>Servers</strong></a></li>
+	<li><a><strong>Customer Service</strong></a>
+		<ul>
+			<li><a routerLink="/customerservice/user" routerLinkActive="active">User Viewer</a></li>
+			<li><a routerLink="/customerservice/tools" routerLinkActive="active">User Tools</a></li>
+		</ul>
+	</li>
+	<li><a><strong>Log</strong></a>
+		<ul>
+			<li><a>Function</a></li>
+			<li><a>Daily Report</a></li>
+		</ul>
+	</li>
+</ul>
+<div id="container">
+	<router-outlet></router-outlet>
 </div>

@@ -55,7 +55,12 @@ function parser (index, type, fields, breakFileChar, breakLineChar)
 			if (!field || field.length == 0)
 				field = "smf" + i;
 
-			obj [field] = private.convert (field, raw);
+			let v = private.convert (field, raw);
+			if (typeof (v) === "object")
+				for (let p in v)
+					obj [field + "_" + p] = v [p];
+			else
+				obj [field] = v;
 		}
 
 		obj ["src"] = private.type;
@@ -70,26 +75,49 @@ function parser (index, type, fields, breakFileChar, breakLineChar)
 
 		switch (type)
 		{
-			case 't':							break;
-			case 'a':	value = raw.split(",");	break;
-			case 'm':	value = {}
-						let temp = raw.split(",");
-						for (let i in temp)
-						{
-							let p = temp [i];
-							if (p === "")
-								continue;
-
-							p = p.split (":");
-							value [p[0]] = p[1];
-						}
-						break;
-			case 'i':	value = Number (raw);	break;
-			case 's':							break;
-			case 'b':	value = Boolean (raw);	break;
-			default:							break;
+			case 't':										break;
+			case 'a':	value = private.parseArray (raw);	break;
+			case 'm':	value = private.parseMap (raw);		break;
+			case 'i':	value = Number (raw);				break;
+			case 's':										break;
+			case 'b':	value = Boolean (raw);				break;
+			default:										break;
 		}
 		
+		return value;
+	};
+
+	private.parseArray = (raw) =>
+	{
+		let value = [];
+		let temp =  raw.split(",");
+		for (let i in temp)
+		{
+			if (isNaN (temp[i]))
+				value.push (temp[i]);
+			else
+				value.push (Number (p[1]));
+		}
+		return value;
+	};
+	
+	private.parseMap = (raw) =>
+	{
+		let value = {};
+		let temp = raw.split(",");
+		for (let i in temp)
+		{
+			let p = temp [i];
+			if (p === "")
+				continue;
+
+			p = p.split (":");
+			if (isNaN (p[1]))
+				value [p[0]] = p[1];
+			else
+				value [p[0]] = Number (p[1]);
+		}
+
 		return value;
 	};
 

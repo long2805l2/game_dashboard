@@ -4,14 +4,13 @@
 	</div>
 </div>
 <ng-template #editBlock>
+	<div>
+		<label><input [(ngModel)]="newPermission" type="text" placeholder="add new permission"><input type="button" value="+" (click)="onAddPermission()"></label>
+	</div>
 	<div *ngFor="let permission of admin.permissions | keyvalue">
-		<input [(ngModel)]="permission.value" type="checkbox" data-role="checkbox"><label>{{permission.key}}</label>
+		<label><input [(ngModel)]="permission.value" type="checkbox">{{permission.key}}</label>
 	</div>
 	<div>
-		<input type="checkbox" data-role="checkbox" checked disabled>
-		<label><input [(ngModel)]="newPermission" type="text" placeholder="add new permission"><button type="button" (click)="onAddPermission()">+</button></label>
-	</div>
-	<div>
-		<button type="button">save</button>
+		<input type="button" value="save">
 	</div>
 </ng-template>

@@ -31,6 +31,12 @@ export class AdminProfileComponent implements OnInit
 			this.admin = temp;
 		});
 	}
+	
+	private onLogout ():void
+	{
+		this.adminAuthen.logout();
+		window.location.reload();
+	}
 
 	private onChangePassword():void
 	{
@@ -47,7 +53,7 @@ export class AdminProfileComponent implements OnInit
 
 			console.log ("need logout", result.value, typeof (result.value));
 			if (result.value === true)
-				this.adminAuthen.logout ();
+				this.onLogout ();
 		});
 	}
 }

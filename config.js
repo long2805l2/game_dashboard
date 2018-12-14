@@ -28,14 +28,14 @@ config.elastic = {};
 config.elastic.path = "d:/Project/els/app/elasticsearch/6.4.0/bin/elasticsearch.bat";
 config.elastic.config = "d:/Project/els/app/elasticsearch/6.4.0/config/elasticsearch.yml";
 config.elastic.ip = "localhost";
-config.elastic.port = 9200;
+config.elastic.port = 8082;
 config.elastic.home = config.elastic.ip + ":" + config.elastic.port;
 
 config.kibana = {};
 config.kibana.path = "d:/Project/els/app/kibana/6.4.0/bin/kibana.bat";
 config.kibana.config = "d:/Project/els/app/kibana/6.4.0/config/kibana.yml";
 config.kibana.ip = "localhost";
-config.kibana.port = 5601;
+config.kibana.port = 8083;
 config.kibana.home = config.kibana.ip + ":" + config.kibana.port;
 
 config.authen = {};
@@ -45,7 +45,7 @@ config.authen.method = "RS256";
 
 config.gm = {};
 config.gm.ip = "49.213.72.182";
-config.gm.port = 8111;
+config.gm.port = 8081;
 config.gm.key = "(@dm1nS#cr3tKey!)";
 config.gm.method = "SHA256";
 

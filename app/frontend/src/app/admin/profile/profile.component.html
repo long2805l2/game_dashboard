@@ -1,20 +1,12 @@
-<div data-role="accordion">
-	<div class="frame">
-		<div class="heading">Change Password</div>
-		<div class="content">
-			<div class="p-2">
-				<div><label>Old Password<input [(ngModel)]="oldPass" type="password" placeholder="* * * *"></label></div>
-				<div><label>New Password<input [(ngModel)]="newPass" type="password" placeholder="* * * *"></label></div>
-				<div><button class="button alert" (click)="onChangePassword()">Update</button></div>
-			</div>
-		</div>
+<div *ngIf="admin">
+	<a (click)="onLogout()">logout</a>
+
+	<div>
+		<div><label>Old Password<input [(ngModel)]="oldPass" type="password" placeholder="* * * *"></label></div>
+		<div><label>New Password<input [(ngModel)]="newPass" type="password" placeholder="* * * *"></label></div>
+		<div><input type="button" value="Update" (click)="onChangePassword()"></div>
 	</div>
-	<div class="frame active">
-		<div class="heading">Permissions</div>
-		<div class="content">
-			<div class="p-2">
-				<app-admin-permissions [admin]="admin" [isReadonly]="true"></app-admin-permissions>
-			</div>
-		</div>
-	</div>
+
+	<p>{{domain}}</p>
+	<app-admin-permissions [admin]="admin" [isReadonly]="true"></app-admin-permissions>
 </div>

@@ -7,6 +7,27 @@
     transform: translate(-50%, -50%);
 }
 
+:host .form input[type=text],
+:host .form input[type=password],
+:host .form select,
 :host .form button {
     width: 100%;
+    padding: 0.6em 1.25em;
+    margin: 0.25em 0em;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 0.25em;
+    box-sizing: border-box;
+}
+
+:host .form button 
+{
+    background-color: #4CAF50;
+    color: white;
+	cursor: pointer;
+	margin-top: 1em;
+}
+
+:host .form button:hover {
+    background-color: #45a049;
 }

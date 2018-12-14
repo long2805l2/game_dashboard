@@ -22,9 +22,11 @@ switch (cmd)
 		break;
 	
 	case "frontend":
-		option.cwd = "./app/frontend";
-		let ng = /^win/.test(process.platform) ? 'ng.cmd' : 'ng';
-		childProcess = child_process.spawn (ng, ["serve", "--host", config.frontend.ip, "--port", config.frontend.port], option);
+		{	
+			option.cwd = "./app/frontend";
+			let ng = /^win/.test(process.platform) ? 'ng.cmd' : 'ng';
+			childProcess = child_process.spawn (ng, ["serve", "--host", config.frontend.ip, "--port", config.frontend.port], option);
+		}
 		break;
 
 	case "log":

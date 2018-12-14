@@ -109,11 +109,16 @@ function watcher ()
 		if (private.parser)
 		{
 			let objs = private.parser.parse (file.dir, file.name, lines);
-
-			for (let i in objs)
+			if (objs && objs.length > 0)
 			{
-				private.elastic.push (objs [i]);
-				// private.debugLog.log ("watcher", "private.readLines", JSON.stringify (objs [i]));
+				while (objs.length > 200)
+				{
+					let temp = objs.splice(0, 200);
+					private.elastic.push (temp);
+				}
+
+				if (objs.length > 0)
+					private.elastic.push (objs);
 			}
 		}
 
@@ -174,8 +179,13 @@ function watcher ()
 	private.watchFile = function (event, fileName)
 	{
 		if (fileName.match (private.except))
+		{
+			console.log ("watcher", "skip file", fileName);
 			return;
-		
+		}
+		else
+			console.log ("watcher", fileName);
+
 		let stats = fs.statSync(private.watchDir + "/" + fileName);
 		if (stats.isDirectory())
 			return;

@@ -10,10 +10,10 @@ function debug (debugLogPath)
 	let public = {};
 	public.log = (...param) =>
 	{
-		let line = param.join ("	");
+		// let line = param.join ("	");
 		// private.stream.write(line + break_line, "utf-8");
-		fs.appendFile(debugLogPath, line + break_line, (err) => {});
-		// console.log (line);
+		// fs.appendFile(debugLogPath, line + break_line, (err) => {});
+		console.log (...param);
 	};	
 		
 	return public;
