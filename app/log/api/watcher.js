@@ -19,6 +19,7 @@ function watcher ()
 	private.error = "";
 	private.fileEncode = "utf8";
 	private.status = status_stop;
+	private.ready = false;
 	private.files = {};
 	private.parser = null;
 	private.elastic = null;
@@ -49,10 +50,13 @@ function watcher ()
 			{
 				let fileName = files [i];
 				
-				if (!private.files [fileName])
-				{
-					private.addFile (fileName);	
-				}
+				if (fileName.match (private.except))
+					continue;
+
+				if (private.files [fileName])
+					continue;
+				
+				private.addFile (fileName);
 			}
 			
 			private.status = status_wait;
@@ -72,6 +76,7 @@ function watcher ()
 		{
 			for (let id in private.files)
 			{
+				// console.log ("private.resume", id);
 				let file = private.files [id];
 				private.updateFile (file);
 			}
@@ -106,9 +111,11 @@ function watcher ()
 
 		let lines = buffer.toString(private.fileEncode, 0, bytesRead);
 
+		// console.log ("private.readLines", "private.parser", private.parser ? "not null" : "null");
 		if (private.parser)
 		{
 			let objs = private.parser.parse (file.dir, file.name, lines);
+			// console.log ("private.readLines", "objs", objs ? objs.length : "null");
 			if (objs && objs.length > 0)
 			{
 				while (objs.length > 200)
@@ -133,6 +140,7 @@ function watcher ()
 			}
 
 			file.lock = false;
+			file.lastRead = Date.now();
 		});
 	};
 
@@ -168,7 +176,7 @@ function watcher ()
 	private.updateFile = function (file)
 	{
 		let stat = fs.statSync (file.path);
-				
+		
 		if (file.last < stat.size && !file.lock)
 		{
 			file.lock = true;
@@ -198,37 +206,41 @@ function watcher ()
 	};
 
 	var public = {};
-	public.start = (wacthDirPath, cacheDirPath, parser, elastic, debugLog) =>
+	public.init = (wacthDirPath, cacheDirPath, parser, elastic, debugLog) =>
 	{
 		private.watchDir = wacthDirPath;
 		private.cacheDir = cacheDirPath;
 		private.parser = parser;
 		private.elastic = elastic;
-
 		private.debugStream = debugLog;
+		private.init ();
+		private.ready = true;
+	};
 
-		if (private.init ())
-		{	
-			private.thread = fs.watch(private.watchDir, (event, fileName) => private.watchFile(event, fileName));
+	public.start = () =>
+	{
+		// if (!private.error)
+		// {	
+			// private.thread = fs.watch(private.watchDir, (event, fileName) => private.watchFile(event, fileName));
 			private.resume ();
-		}
-		else
-			console.log (private.error);
+		// }
+		// else
+		// 	console.log (private.error);
 	}
 
 	public.stop = () =>
 	{
-		if (private.status !== status_run)
-			return;
+		// if (private.status !== status_run)
+		// 	return;
 
-		private.thread.close();
-		for (let id in private.files)
-		{
-			let file = private.files [id];
+		// private.thread.close();
+		// for (let id in private.files)
+		// {
+		// 	let file = private.files [id];
 
-			fs.unwatchFile (file.path);
-			private.cache (file);
-		}
+		// 	fs.unwatchFile (file.path);
+		// 	private.cache (file);
+		// }
 	}
 
 	return public;

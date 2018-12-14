@@ -14,6 +14,7 @@ function client ()
 	// var queueStream = fs.createWriteStream(queue);
 
 	let private = {};
+	private.queuePath = "d:/Project/dashboard/app/static/private/log/queue/";
 	private.interval = null;
 	private.intervalMs = 1;
 	private.timeoutMs = 800;
@@ -45,8 +46,13 @@ function client ()
 
 		if (queue.length === 0)
 			return;
-			
-		let obj = queue.shift();
+		
+		let file = queue [0];
+		let json = fs.readFileSync (private.queuePath + "/" + file);
+		let obj = JSON.parse (json);
+
+		// console.log ("load file", file);
+
 		if (Array.isArray(obj))
 			private.addDocuments (obj);
 		else
@@ -134,12 +140,20 @@ function client ()
 
 		private.bulk (body, (error, resp) =>
 		{
-			private.lock = false;
+			let file = queue.shift ();
 			if (error)
 			{
-				private.debugLog.log ("elastic", "addDocuments", "error", JSON.stringify (error));
-				public.push (documents);
+				// private.debugLog.log 
+				console.log ("elastic", "addDocuments", file, "error", JSON.stringify (error));
+				queue.push (file);
 			}
+			else
+			{
+				// console.log ("remove file", file);
+				fs.unlinkSync (private.queuePath + "/" + file);
+			}
+
+			private.lock = false;
 		});
 	}
 
@@ -196,12 +210,16 @@ function client ()
 		});
 	}
 
-	public.init = async(LOGS, debugLog) =>
+	public.clean = async () =>
 	{
-		private.debugLog = debugLog;
-
 		let result = await private.clean ();
 		console.log ("clean", JSON.stringify(result));
+	};
+
+	public.createTemplate = async(LOGS, debugLog) =>
+	{
+		private.isReady = false;
+		private.debugLog = debugLog;
 
 		for (let catalog in LOGS)
 		{
@@ -296,16 +314,28 @@ function client ()
 			result = await private.addTemplate (catalog, param);
 			console.log ("addTemplate", JSON.stringify(result));
 		}
-
-		private.isReady = true;
-		private.start();
 	};
 
-	public.push = (obj) =>
+	public.createQueue = () =>
 	{
-		queue.push (obj);
-		
-		// private.debugLog.log ("elastic", "public.push", JSON.stringify (obj));
+		queue = fs.readdirSync (private.queuePath);
+		queue.sort ();
+	};
+
+	public.start = () =>
+	{
+		private.isReady = true;
+		private.start();
+	}
+
+	public.push = (obj) =>
+	{	
+		let time = process.hrtime();
+		let name = time[0] + "_" + time[1];
+		let file = private.queuePath + name;
+
+		fs.writeFileSync (file, JSON.stringify (obj));
+		queue.push (name);
 	};
 
 	public.forcePush = (obj) =>
