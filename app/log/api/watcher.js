@@ -118,13 +118,13 @@ function watcher ()
 			// console.log ("private.readLines", "objs", objs ? objs.length : "null");
 			if (objs && objs.length > 0)
 			{
-				while (objs.length > 200)
-				{
-					let temp = objs.splice(0, 200);
-					private.elastic.push (temp);
-				}
+				// while (objs.length > 200)
+				// {
+				// 	let temp = objs.splice(0, 200);
+				// 	private.elastic.push (temp);
+				// }
 
-				if (objs.length > 0)
+				// if (objs.length > 0)
 					private.elastic.push (objs);
 			}
 		}

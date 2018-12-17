@@ -56,7 +56,9 @@ function parser (index, type, fields, breakFileChar, breakLineChar)
 				field = "smf" + i;
 
 			let v = private.convert (field, raw);
-			if (typeof (v) === "object")
+			if (v === undefined)
+				obj [field + "_error"] = raw;
+			else if (typeof (v) === "object")
 				for (let p in v)
 					obj [field + "_" + p] = v [p];
 			else
@@ -68,29 +70,50 @@ function parser (index, type, fields, breakFileChar, breakLineChar)
 		return obj;
 	};
 
-	private.convert = (field, raw) =>
+	private.convert = (field, str) =>
 	{
 		let type = field.charAt(0);
-		let value = raw;
+		let value = str;
 
 		switch (type)
 		{
 			case 't':										break;
-			case 'a':	value = private.parseArray (raw);	break;
-			case 'm':	value = private.parseMap (raw);		break;
-			case 'i':	value = Number (raw);				break;
+			case 'a':	value = private.parseArray (str);	break;
+			case 'm':	value = private.parseMap (str);		break;
+			case 'i':	value = private.parseNum (str);		break;
 			case 's':										break;
-			case 'b':	value = Boolean (raw);				break;
+			case 'b':	value = private.parseBool (str);	break;
 			default:										break;
 		}
 		
 		return value;
 	};
+	
+	private.parseNum = (str) =>
+	{
+		let v = Number (str);
+		if (v === NaN)
+			return undefined;
 
-	private.parseArray = (raw) =>
+		return v;
+	};
+
+	private.parseBool = (str) =>
+	{
+		let v = str.toLowerCase ();
+		if (v === "true")
+			return true;
+
+		if (v === "false")
+			return false;
+		
+		return undefined;
+	};
+
+	private.parseArray = (str) =>
 	{
 		let value = [];
-		let temp =  raw.split(",");
+		let temp =  str.split(",");
 		for (let i in temp)
 		{
 			if (isNaN (temp[i]))
@@ -101,10 +124,10 @@ function parser (index, type, fields, breakFileChar, breakLineChar)
 		return value;
 	};
 	
-	private.parseMap = (raw) =>
+	private.parseMap = (str) =>
 	{
 		let value = {};
-		let temp = raw.split(",");
+		let temp = str.split(",");
 		for (let i in temp)
 		{
 			let p = temp [i];
@@ -112,6 +135,9 @@ function parser (index, type, fields, breakFileChar, breakLineChar)
 				continue;
 
 			p = p.split (":");
+			if (p.length != 2)
+				return undefined;
+
 			if (isNaN (p[1]))
 				value [p[0]] = p[1];
 			else

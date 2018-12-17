@@ -51,7 +51,7 @@ function client ()
 		let json = fs.readFileSync (private.queuePath + "/" + file);
 		let obj = JSON.parse (json);
 
-		// console.log ("load file", file);
+		console.log ("load file", file);
 
 		if (Array.isArray(obj))
 			private.addDocuments (obj);
@@ -145,11 +145,16 @@ function client ()
 			{
 				// private.debugLog.log 
 				console.log ("elastic", "addDocuments", file, "error", JSON.stringify (error));
-				queue.push (file);
+				// if (error ["displayName"] === "RequestTimeout")
+				// {
+
+				// }
+				// else
+					queue.push (file);
 			}
 			else
 			{
-				// console.log ("remove file", file);
+				console.log ("remove file", file);
 				fs.unlinkSync (private.queuePath + "/" + file);
 			}
 

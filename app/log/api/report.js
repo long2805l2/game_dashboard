@@ -542,19 +542,19 @@ Offers
 	Total đơn hàng thường	
 	Total gold thưởng	
 	Total KC skiptime đơn hàng.	
-Airship
-	Total KKC được giao	Theo group 5 level/ so sánh 1 ngày / 1 tuần trước/ theo ngày
-	Total lượt hủy KC	
-	Total gold thưởng	
-	Total KC skiptime	
-	Total user tham gia	
-Đúc chậu
-	Total lần đúc	Theo group 5 level/ so sánh 1 ngày / 1 tuần trước/ theo ngày
-	Total thành công 	
-	Total thất bại	
-	Total gold spent	
-	Total kc spent	
-	Total User tham gia	
+// Airship
+//	Total KKC được giao	Theo group 5 level/ so sánh 1 ngày / 1 tuần trước/ theo ngày
+//	Total lượt hủy KC	
+//	Total gold thưởng	
+//	Total KC skiptime	
+//	Total user tham gia	
+// Đúc chậu
+// 	Total lần đúc	Theo group 5 level/ so sánh 1 ngày / 1 tuần trước/ theo ngày
+// 	Total thành công 	
+// 	Total thất bại	
+// 	Total gold spent	
+x	Total kc spent	
+// 	Total User tham gia	
 Private shop
 	Total transection item	1 giao dịch thành công được tính là 1 trans
 	Total transection KKC	Đóng thùng thành công được tính là 1 trans
@@ -577,7 +577,7 @@ Spin
 Mine
 	Total lượt đào mỏ daily	Theo group 5 level/ so sánh 1 ngày / 1 tuần trước/ theo ngày
 	Total spent kc skiptime	
-	Total uer tham gia	
+	Total user tham gia	
 	Total gold bonus	
 Săn kho báu
 	Total user tham gia	Theo group 5 level/ so sánh 1 ngày / 1 tuần trước/ theo ngày

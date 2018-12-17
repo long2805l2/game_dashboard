@@ -4,7 +4,7 @@ var CronJob = require('cron').CronJob;
 var config = require("../../config.js");
 var watcher = require ("./api/watcher.js");
 var parser = require ("./api/parser.js");
-var report = require ("./api/report.js");
+var report = require ("./report/manager.js");
 var debug = require ("./api/debug.js");
 
 let private = {};
@@ -19,7 +19,7 @@ private.init = async function ()
 	private.debug = debug (config.log.debug);
 	private.client.connect ();
 	// await private.client.clean ();
-	// private.client.createTemplate (private.LOGS, private.debug);
+	// await private.client.createTemplate (private.LOGS, private.debug);
 	private.client.createQueue ();
 	
 	for (let catalog in private.LOGS)
@@ -68,8 +68,11 @@ private.init = async function ()
 private.start = function ()
 {
 	private.client.start ();
-	for (let i in private.jobs)
-		private.jobs [i].run.start ();
+	report.init (private.client);
+	// for (let i in private.jobs)
+	// 	private.jobs [i].run.start ();
+	// private.job_import();
+	private.job_analyst ("hour");
 };
 
 private.job_import = function ()
@@ -81,15 +84,8 @@ private.job_import = function ()
 private.job_analyst = function (group)
 {
 	console.log (Date.now(), "job_analyst", group);
-	// let reports = report.get(group);
-	// for (let i in reports)
-	// {
-	// 	let report = reports [i];
-	// 	let data = client.query (report.query);
-	// 	let documents = report.analyst (data);
-
-	// 	client.push (documents);
-	// }
+	
+	report.run(group);
 };
 
 private.init ();
